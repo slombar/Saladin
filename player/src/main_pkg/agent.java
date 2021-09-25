@@ -12,9 +12,9 @@ public class agent {
     private cell player_color;
     private board curr_board = new board();
 
-    public agent(String groupname, cell player_color, String first_move) {
-        groupname = groupname;
-        player_color = player_color;
+    public agent(String group, cell color, String first_move) {
+        groupname = group;
+        player_color = color;
         ai_loop();
     }
 
@@ -40,14 +40,18 @@ public class agent {
             move_writer.flush();
             move_writer.write(our_move);
             move_writer.close();
+            System.out.println("Got through test AI loop");
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        while (group_file.exists()) {/*wait until our group file gets removed*/}
         ai_loop(); //run ai_loop() again
     }
 
     public String choose_next_move(String opponent_move) {
+        return "test";
 
+        
     }
 }

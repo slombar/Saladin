@@ -6,11 +6,15 @@ import java.util.Scanner;
 
 public class main {
     public static void main(String[] args) {
-        File groupname_file = new File(args[0] + ".go");
+        System.out.println("Got group name: " + args[0]);
 
+        File groupname_file = new File(args[0] + ".go");
         while(!groupname_file.exists()) {}
+        System.out.println("Found groupname.go");
 
         File move_file = new File("move_file");
+        while(!move_file.exists()) {}
+        System.out.println("Found move file");
 
         String opponent_move;
 
