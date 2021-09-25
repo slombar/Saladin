@@ -50,11 +50,7 @@ public class agent {
     }
 
     public String choose_next_move(String opponent_move) {
-
-
-
         return "test";
-        
     }
 
     /**
@@ -62,16 +58,11 @@ public class agent {
      * @return
      */
     public int eval_function(board b){
-
-
         return 0;
     }
 
-
     public int min_max(){
         int result = 0;
-
-
 
         return result;
     }
