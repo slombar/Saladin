@@ -1,9 +1,9 @@
 package main_pkg;
 
-public enum cell {
-
-    EMPTY,
-    BLUE,
-    ORANGE;
-
+public class cell {
+    cell(){
+        cell_color color;
+        int row;
+        int col;
+    }
 }

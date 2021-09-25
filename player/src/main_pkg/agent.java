@@ -9,10 +9,10 @@ import java.util.Scanner;
 public class agent {
 
     private String groupname;
-    private cell player_color;
-    private board curr_board = new board();
+    public cell_color player_color;
+    private board curr_board = new board(player_color);
 
-    public agent(String group, cell color, String first_move) {
+    public agent(String group, cell_color color, String first_move) {
         groupname = group;
         player_color = color;
         ai_loop();
@@ -50,8 +50,29 @@ public class agent {
     }
 
     public String choose_next_move(String opponent_move) {
-        return "test";
 
+
+
+        return "test";
         
+    }
+
+    /**
+     * Evaluation function for minmax
+     * @return
+     */
+    public int eval_function(board b){
+
+
+        return 0;
+    }
+
+
+    public int min_max(){
+        int result = 0;
+
+
+
+        return result;
     }
 }

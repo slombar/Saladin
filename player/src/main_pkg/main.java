@@ -22,10 +22,10 @@ public class main {
             Scanner scanner = new Scanner(move_file);
             opponent_move = scanner.nextLine();
             if (opponent_move.isEmpty()) {
-                agent agent = new agent(args[0], cell.BLUE, opponent_move);
+                agent agent = new agent(args[0], cell_color.BLUE, opponent_move);
             }
             else {
-                agent agent = new agent(args[0], cell.ORANGE, opponent_move);
+                agent agent = new agent(args[0], cell_color.ORANGE, opponent_move);
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
