@@ -148,10 +148,6 @@ public class board {
                                 tempCol++;
 
                                 //make sure we are in range of the board ie not at a wall
-
-
-
-
                                 if(tempRow >= length) {
 
                                     //instantiate the next cell
@@ -186,7 +182,7 @@ public class board {
                                 tempCol++;
 
                                 //make sure we are in range of the board ie not at a wall
-                                if(tempCol >= ) {
+                                if(tempCol >= startOfBoardNum) {
 
                                     //instantiate the next cell
                                     nextCell = board[row][tempCol];

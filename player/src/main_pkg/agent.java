@@ -7,6 +7,72 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+/*
+int chosen_score = 0;
+        cell chosen_move = null;
+        MinMaxMove returnMove = null;
+
+        //minmax was here before
+
+        int best_score = 0;
+        cell best_move = null;
+
+        List<cell> moves_list = new ArrayList<>();
+
+        if(depth == max_depth){
+            chosen_score = evaluation();
+        }else {
+            moves_list = generate_moves();
+            if (moves_list == null) {
+                chosen_score = evaluation();
+            } else {
+                for (int i = 1; i < moves_list.size(); i++) {
+                    best_score = 10000000;
+
+                    apply_move(new_board, moves_list.get(i));
+
+                    min_max(new_board, depth + 1, max_depth);
+
+                    if (better(chosen_score, best_score)) {
+                        best_score = chosen_score;
+                        best_move = chosen_move;
+                    }
+
+                }
+                chosen_score = best_score;
+                chosen_move = best_move;
+            }
+        }
+
+        //abpruning
+        minimax(new_board, depth+1, max_depth, our_best_score, enemy_best_score);
+
+                //if we are considering our move
+
+                if (isPlayerCell(chosen_move) && chosen_score > our_best_score) {
+                if (chosen_score > enemy_best_score) {
+
+                } else {
+                our_best_score = chosen_score;
+                }
+                }
+                //if we are considering an enemy move
+                if (isEnemyCell(chosen_move) && chosen_score < enemy_best_score) {
+        if (chosen_score < enemy_best_score) {
+
+        } else {
+        enemy_best_score = chosen_score;
+        }
+        }
+
+        chosen_score = evaluate(new_board);
+        returnMove.setMove(chosen_move);
+        returnMove.setScore(chosen_score);
+        return returnMove;
+
+
+        return minimax(new_board, depth+1, max_depth, our_best_score, enemy_best_score);
+ */
 
 public class agent {
 
@@ -87,37 +153,100 @@ public class agent {
      * Min max function with alpha beta pruning
      * @return a minmaxmove data structure, that contains a chosen score and a chosen move
      */
-    public MinMaxMove minimax(board new_board, int depth, int max_depth, int our_best_score, int enemy_best_score){
-        int chosen_score = 0;
-        cell chosen_move = null;
+    public miniMove minimax(board currentBoardState, int depth, boolean ourMove, cell currentMove, int alpha, int beta){
+        board newBoardState = null;
+        miniMove returnMove = null;
+        List <cell> children = null;
+        List <miniMove> childValues = null;
 
-        //minmax was here before
-        //TODO: see if the minmax function on line 115 needs to be moved to here after running
+        if(depth == 0){
+            returnMove.setValue(evaluation(currentMove));
+            returnMove.setMove(currentMove);
+            return returnMove;
+        }else{
+            children =  generate_moves(currentBoardState);
 
-        //if we are considering our move
-            if(isPlayerCell(chosen_move) && chosen_score > our_best_score){
-                if(chosen_score > enemy_best_score){
+            //check valid moves
+            //then run minimax on that
 
+            miniMove currentChildVal = null;
+
+            for (cell c: children){
+
+                newBoardState = apply_move(currentBoardState, c);
+                currentChildVal = minimax(newBoardState, depth-1, !ourMove, c, alpha, beta);
+
+                //alpha beta pruning
+                if(ourMove){
+                    if(alpha >= currentChildVal.getValue()){
+
+                    }else{
+                        childValues.add(currentChildVal);
+                        alpha = currentChildVal.getValue();
+                    }
                 }else{
-                    our_best_score = chosen_score;
+                    if(beta <= currentChildVal.getValue()){
+
+                    }else{
+                        childValues.add(currentChildVal);
+                        beta = currentChildVal.getValue();
+                    }
                 }
-            }
-            //if we are considering an enemy move
-            if(isEnemyCell(chosen_move) && chosen_score < enemy_best_score){
-                if(chosen_score < enemy_best_score){
 
-                }else{
-                    enemy_best_score = chosen_score;
+
+            }
+
+            if(ourMove){
+                miniMove bestMove = new miniMove();
+                bestMove.setValue(-106969690);
+
+                for (miniMove childVal:childValues) {
+
+                    if(childVal.getValue() > bestMove.getValue()){
+                        bestMove = childVal;
+                    }
                 }
+               // return childV;
+            }else{
+                miniMove worstMove = new miniMove();
+                worstMove.setValue(1000000069);
+
+                for (miniMove childVal:childValues) {
+
+                    if (childVal.getValue() < worstMove.getValue()) {
+                        worstMove = childVal;
+                    }
+                }
+               // return minVal;
             }
-
-        minimax(new_board, depth+1, max_depth, our_best_score, enemy_best_score);
-
-        MinMaxMove returnMove = null;
-        returnMove.setMove(chosen_move);
-        returnMove.setScore(chosen_score);
+        }
 
         return returnMove;
+    }
+
+
+    private boolean better(int chosen_score, int best_score) {
+        if(chosen_score > best_score){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    private void min_max(board new_board, int i, int max_depth) {
+    }
+
+    private board apply_move(board new_board, cell cell) {
+        return new_board;
+    }
+
+    private List<cell> generate_moves(board currBoard) {
+
+        return null;
+    }
+
+    private int evaluation(cell currentMove) {
+        return 0;
     }
 
 }

@@ -16,6 +16,12 @@ public class cell {
         this.row = cellRow;
         this.color = cellColor;
     }
+
+    cell(){
+        this.col = 0;
+        this.row = 0;
+        this.color = cell_color.ORANGE;
+    }
     /**
      * returns the opposite color of the given cell
      * @return blue if given cell is orange, orange if given cell is blue, and empty if cell is empty
