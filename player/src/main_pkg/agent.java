@@ -84,14 +84,15 @@ public class agent {
     }
 
     /**
-     * Min max function
-     * @return
+     * Min max function with alpha beta pruning
+     * @return a minmaxmove data structure, that contains a chosen score and a chosen move
      */
     public MinMaxMove minimax(board new_board, int depth, int max_depth, int our_best_score, int enemy_best_score){
         int chosen_score = 0;
         cell chosen_move = null;
 
-        minimax(new_board, depth+1, max_depth, our_best_score, enemy_best_score);
+        //minmax was here before
+        //TODO: see if the minmax function on line 115 needs to be moved to here after running
 
         //if we are considering our move
             if(isPlayerCell(chosen_move) && chosen_score > our_best_score){
@@ -100,7 +101,6 @@ public class agent {
                 }else{
                     our_best_score = chosen_score;
                 }
-
             }
             //if we are considering an enemy move
             if(isEnemyCell(chosen_move) && chosen_score < enemy_best_score){
@@ -110,6 +110,8 @@ public class agent {
                     enemy_best_score = chosen_score;
                 }
             }
+
+        minimax(new_board, depth+1, max_depth, our_best_score, enemy_best_score);
 
         MinMaxMove returnMove = null;
         returnMove.setMove(chosen_move);
