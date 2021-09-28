@@ -55,6 +55,16 @@ public class agent {
         return "test";
     }
 
+    public boolean isEnemyCell(cell possibleEnemyCell){
+        boolean result = true;
+
+        if(player_color == possibleEnemyCell.getColor()){
+            result = false;
+        }
+
+        return result;
+    }
+
     /**
      * Evaluation function for minmax
      * @return
@@ -63,70 +73,43 @@ public class agent {
         return 0;
     }
 
+    public boolean isPlayerCell(cell possiblePlayerCell){
+        boolean result = false;
+
+        if(player_color == possiblePlayerCell.getColor()){
+            result = true;
+        }
+
+        return result;
+    }
+
     /**
      * Min max function
      * @return
      */
-    public MinMaxMove min_max(board the_board, int depth, int max_depth){
-        /*
-        minimax(in game board, in int depth, in int max_depth,
-        out score chosen_score, out score chosen_move)
-  begin
-    if (depth = max_depth) then
-        chosen_score = evaluation(board);
-   ` else
-        moves_list = generate_moves(board);
-       ` if (moves_list = NULL) then
-        `    chosen_score = evaluation(board);
-       ` else
-            for (i = 1 to moves_list.length) do
-                best_score = infinity;
-                new_board = board;
-                `apply_move(new_board, moves_list[i]);
-                minimax(new_board, depth+1, max_depth, current_score, current_move);
-                if (better(current_score, best_score)) then
-                    best_score = current_score;
-                    best_move = current_move;
-                endif
-            enddo
-            chosen_score = best_score;
-            chosen_move = best_move;
-        endif
-    endif
-end.
-         */
+    public MinMaxMove minimax(board new_board, int depth, int max_depth, int our_best_score, int enemy_best_score){
         int chosen_score = 0;
         cell chosen_move = null;
-        int best_score = 0;
-        cell best_move = null;
 
-        List<cell> moves_list = new ArrayList<>();
+        minimax(new_board, depth+1, max_depth, our_best_score, enemy_best_score);
 
-        if(depth == max_depth){
-            chosen_score = evaluation();
-        }else {
-            moves_list = generate_moves();
-            if (moves_list == null) {
-                chosen_score = evaluation();
-            }else{
-                for(int i = 1; i <moves_list.size();i++){
-                    best_score = 10000000;
-                    board new_board = null;
+        //if we are considering our move
+            if(isPlayerCell(chosen_move) && chosen_score > our_best_score){
+                if(chosen_score > enemy_best_score){
 
-                    apply_move(new_board, moves_list.get(i));
-
-                    min_max(new_board, depth+1, max_depth);
-
-                    if (better(chosen_score, best_score)){
-                        best_score = chosen_score;
-                        best_move = chosen_move;
-                    }
-
+                }else{
+                    our_best_score = chosen_score;
                 }
-                chosen_score = best_score;
-                chosen_move = best_move;
+
             }
-        }
+            //if we are considering an enemy move
+            if(isEnemyCell(chosen_move) && chosen_score < enemy_best_score){
+                if(chosen_score < enemy_best_score){
+
+                }else{
+                    enemy_best_score = chosen_score;
+                }
+            }
 
         MinMaxMove returnMove = null;
         returnMove.setMove(chosen_move);
@@ -135,21 +118,4 @@ end.
         return returnMove;
     }
 
-    public int evaluation(){
-        return 0;
-    }
-
-    public List<cell> generate_moves(){
-        List<cell> moves_list = new ArrayList<>();
-        return moves_list;
-    }
-    public void apply_move(board new_board, cell cell){
-
-
-    }
-    public boolean better(int the_score, int best_score){
-
-        return true;
-
-    }
 }
