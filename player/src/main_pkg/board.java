@@ -1,5 +1,8 @@
 package main_pkg;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class board {
     private cell[][] board;
     private cell_color playerColor;
@@ -50,8 +53,9 @@ public class board {
      *
      * @return a list of valid moves in the form of cells
      */
-    public cell[] find_valid_moves(){
-        cell[] validMoves = {};
+    public List<cell> find_valid_moves(){
+
+        List<cell> validMoves = new ArrayList<>();
         int startOfBoardNum = 1;
         int length = 8;
         cell currentCell = null;
@@ -83,16 +87,15 @@ public class board {
                 /*
                 check if the current cell is empty, therefore it has the possibility of being a move
                     1. if current cell is empty, then we can look to see if enemy cells are adjacent to it.
-                    2. we find if there are enemy adjacent cells (EAJ), if yes:
+                    2. if we find that there are enemy adjacent cells (EAJ):
                         a. we will continue to check each EAJ cell to find connected enemy cells (CEC)*
-                            (*cells on diagonals, horizontals, and verticals of the EAJ cell)
+                            (*cells on diagonals, horizontals, and verticals of the EAJ cell depending on its location in comparison to our empty cell)
                             i. if we find CEC then we will continue to follow the path of connection until we either:
                                 - reach an empty cell
                                 - reach the end of the board without finding a playercell
                                 - find a player cell
                                if we find an empty cell or reach the end of the board, this is not a valid move, therefore we remove it from the possibile moves
-
-                    */
+                */
                 if(currentCell.getColor() == cell_color.EMPTY) {
 
                     //for each cell, find adjacent cells
@@ -111,6 +114,7 @@ public class board {
                         TLcurrentCell = null;
                         TcurrentCell = null;
                         TRcurrentCell = null;
+
                     }else if(currentCell.getRow() == length){ //is the current cell on the bottom row of the board?
                         //don't add any bottom adjacent cells
                         BLcurrentCell = null;
@@ -133,36 +137,59 @@ public class board {
                     /* Check if any adjacent cells are enemies */
                     for(int x = 0; x < 9; x++){
 
-                        if(isEnemyCell(currentCell, TLcurrentCell)){
-                            //if the cell to the top left is an enemy cell, do the following checks:
-                            //  1. see if the BRcurrentCell (cell adjacent to bottom right of currentCell) is an enemy cell (
-                        }
-                        if(isEnemyCell(currentCell, TcurrentCell)){
+                        if(isEnemyCell(TLcurrentCell)){
 
                         }
-                        if(isEnemyCell(currentCell, TRcurrentCell)){
+                        if(isEnemyCell(TcurrentCell)){
 
                         }
-                        do{
-                            //looking at current empty cell (1st parameter for movement), check the left to see if there is an enemy cell
-                            //if there is, continue to check the left cell until either a wall/empty space is met, or:
-                            // if a player cell is found, then the move is valid and we can add it to the list
-
-
-
-
-
-                        }while(isEnemyCell(currentCell, LcurrentCell));
-                        if(isEnemyCell(currentCell, RcurrentCell)){
+                        if(isEnemyCell(TRcurrentCell)) {
 
                         }
-                        if(isEnemyCell(currentCell, BLcurrentCell)){
+                        if(isEnemyCell(RcurrentCell)){
 
                         }
-                        if(isEnemyCell(currentCell, BcurrentCell)){
+                        if(isEnemyCell(LcurrentCell)){
 
                         }
-                        if(isEnemyCell(currentCell, BRcurrentCell)){
+                        if(isEnemyCell(BLcurrentCell)){
+
+                        }
+                        if(isEnemyCell(BcurrentCell)){
+                            boolean exit = false;
+                            int tempRow = row;
+                            cell nextCell = BcurrentCell;
+
+                            do {
+                                //iterate to the next cell
+                                tempRow++;
+
+                                //make sure we are in range of the board ie not at a wall
+                                if(tempRow <= length) {
+
+                                    //instantiate the next cell
+                                    nextCell = board[tempRow][col];
+
+                                    //is the next cell a player color?
+                                    if(isPlayerCell(nextCell)) {
+                                        // if a player cell is found, then the move is valid and we can add it to the list
+                                        validMoves.add(currentCell);
+
+                                    //check if the cell is empty, otherwise it's an enemy cell
+                                    }else if(isEmptyCell(nextCell)){
+                                        //not a valid move because we reached an empty cell instead of a player cell
+                                        exit = true;
+                                    }
+
+                                }else{
+                                    //not a valid move because we reached the end of the board
+                                    exit = true;
+                                }
+
+                            } while (isEnemyCell(nextCell) && !exit);
+
+                        }
+                        if(isEnemyCell(BRcurrentCell)){
 
                         }
 
@@ -177,14 +204,33 @@ public class board {
 
     /**
      * check to see if the given cell and one of its adjacent cells
-     * @param currentCell, the cell you want to compare with the possibleEnemyCell
      * @param possibleEnemyCell, the cell to check if enemy
      * @return
      */
-    public boolean isEnemyCell(cell currentCell, cell possibleEnemyCell){
+    public boolean isEnemyCell(cell possibleEnemyCell){
+        boolean result = true;
+
+        if(playerColor == possibleEnemyCell.getColor()){
+            result = false;
+        }
+
+        return result;
+    }
+
+    public boolean isEmptyCell(cell possibleEmptyCell){
         boolean result = false;
 
-        if(currentCell.getOppositeColor() == possibleEnemyCell.getColor()){
+        if(possibleEmptyCell.getColor() == cell_color.EMPTY) {
+            result = true;
+        }
+
+        return result;
+    }
+
+    public boolean isPlayerCell(cell possiblePlayerCell){
+        boolean result = false;
+
+        if(playerColor == possiblePlayerCell.getColor()){
             result = true;
         }
 
