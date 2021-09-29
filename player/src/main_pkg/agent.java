@@ -221,6 +221,9 @@ public class agent {
             }
         }
 
+        returnMove.setValue(evaluation(currentMove));
+        returnMove.setMove(currentMove);
+
         return returnMove;
     }
 
@@ -231,9 +234,6 @@ public class agent {
         }else{
             return false;
         }
-    }
-
-    private void min_max(board new_board, int i, int max_depth) {
     }
 
     private board apply_move(board new_board, cell cell) {
