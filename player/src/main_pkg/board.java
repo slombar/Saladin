@@ -24,19 +24,90 @@ public class board {
      * @param row, the row the piece gonna be in
      * @param col, the column the piece gonna be in
      */
-    public void place_piece(int row, int col) {
-        cell placingCell = new cell(playerColor, row, col);
+    public void place_piece(int row, int col, cell_color color) {
+        cell placingCell = new cell(color, row, col);
         board[row][col] = placingCell;
     }
 
     /**
-     * Capture a piece on the board
+     * Captures all pieces after placing a new piece
      *
-     * @param capturingCell, the cell you are trying to capture
+     * @param capturingCell, the cell where the newest piece was placed
      */
-    private void capture(cell capturingCell) {
-        int cellRow = capturingCell.getRow();
-        int cellCol = capturingCell.getCol();
+    public void capture(cell capturingCell) {
+
+        //up
+        int[] up = {1, 0};
+        captureLine(capturingCell, up);
+
+        //down
+        int[] down = {-1, 0};
+        captureLine(capturingCell, down);
+
+        //left
+        int[] left = {0, -1};
+        captureLine(capturingCell, left);
+
+        //right
+        int[] right = {0, 1};
+        captureLine(capturingCell, right);
+
+        //up left
+        int[] up_left = {1, -1};
+        captureLine(capturingCell, up_left);
+
+        //up right
+        int[] up_right = {1, 1};
+        captureLine(capturingCell, up_right);
+
+        //down left
+        int[] down_left = {-1, -1};
+        captureLine(capturingCell, down_left);
+
+        //down right
+        int[] down_right = {-1, 1};
+        captureLine(capturingCell, down_right);
+
+    }
+
+    private void captureLine(cell capturingCell, int[] vector) {
+        if (vector.length == 2) {
+            cell_color capturing_color = capturingCell.getColor();
+            int currRow = capturingCell.getRow() + vector[0];
+            int currCol = capturingCell.getCol() + vector[1];
+            cell currCell = board[currRow][currCol];
+
+            if (currCell.getColor() == capturing_color
+                    || currCell.getColor() == cell_color.EMPTY
+                    || currRow > 7
+                    || currCol > 7
+                    || currRow < 0
+                    || currCol < 0) return;
+            else {
+                ArrayList<cell> cells_to_change= new ArrayList<>();
+                cells_to_change.add(currCell);
+
+                while (true) {
+                    currCell = board[currRow + vector[0]][currCol + vector[1]];
+                    currRow = currCell.getRow();
+                    currCol = currCell.getCol();
+
+                    if (currCell.getColor() == capturing_color) break;
+                    else if (currCell.getColor() == cell_color.EMPTY
+                            || currRow > 7
+                            || currCol > 7
+                            || currRow < 0
+                            || currCol < 0) return;
+
+                    else cells_to_change.add(currCell);
+                }
+
+                //loop through cells_to_change and update the board
+                for (cell c : cells_to_change) {
+                    place_piece(c.getRow(), c.getCol(), c.getColor());
+                }
+            }
+        }
     }
 
     /**
@@ -65,7 +136,7 @@ public class board {
      *
      * @return a list of valid moves in the form of cells
      */
-    public List<cell> find_valid_moves() {
+    public List<cell> find_valid_moves(cell_color curr_color) {
 
         List<cell> validMoves = new ArrayList<>();
         int startOfBoardNum = 1;
@@ -423,14 +494,14 @@ public class board {
      * @param possibleEnemyCell, the cell to check if enemy
      * @return
      */
-    public boolean isEnemyCell(cell possibleEnemyCell) {
+    public boolean isEnemyCell(cell possibleEnemyCell, cell_color curr_color) {
         boolean result = true;
 
         if(possibleEnemyCell == null){
             result = false;
         }
 
-        if (playerColor == possibleEnemyCell.getColor()) {
+        if (curr_color == possibleEnemyCell.getColor()) {
             result = false;
         }
 
@@ -451,10 +522,10 @@ public class board {
         return result;
     }
 
-    public boolean isPlayerCell(cell possiblePlayerCell) {
+    public boolean isPlayerCell(cell possiblePlayerCell, cell_color curr_color) {
         boolean result = false;
 
-        if (playerColor == possiblePlayerCell.getColor()) {
+        if (curr_color == possiblePlayerCell.getColor()) {
             result = true;
         }
 

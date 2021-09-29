@@ -7,82 +7,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-/*
-int chosen_score = 0;
-        cell chosen_move = null;
-        MinMaxMove returnMove = null;
-
-        //minmax was here before
-
-        int best_score = 0;
-        cell best_move = null;
-
-        List<cell> moves_list = new ArrayList<>();
-
-        if(depth == max_depth){
-            chosen_score = evaluation();
-        }else {
-            moves_list = generate_moves();
-            if (moves_list == null) {
-                chosen_score = evaluation();
-            } else {
-                for (int i = 1; i < moves_list.size(); i++) {
-                    best_score = 10000000;
-
-                    apply_move(new_board, moves_list.get(i));
-
-                    min_max(new_board, depth + 1, max_depth);
-
-                    if (better(chosen_score, best_score)) {
-                        best_score = chosen_score;
-                        best_move = chosen_move;
-                    }
-
-                }
-                chosen_score = best_score;
-                chosen_move = best_move;
-            }
-        }
-
-        //abpruning
-        minimax(new_board, depth+1, max_depth, our_best_score, enemy_best_score);
-
-                //if we are considering our move
-
-                if (isPlayerCell(chosen_move) && chosen_score > our_best_score) {
-                if (chosen_score > enemy_best_score) {
-
-                } else {
-                our_best_score = chosen_score;
-                }
-                }
-                //if we are considering an enemy move
-                if (isEnemyCell(chosen_move) && chosen_score < enemy_best_score) {
-        if (chosen_score < enemy_best_score) {
-
-        } else {
-        enemy_best_score = chosen_score;
-        }
-        }
-
-        chosen_score = evaluate(new_board);
-        returnMove.setMove(chosen_move);
-        returnMove.setScore(chosen_score);
-        return returnMove;
-
-
-        return minimax(new_board, depth+1, max_depth, our_best_score, enemy_best_score);
- */
-
 public class agent {
+
+    private String columnLetters = "ABCDEFGH";
 
     private String groupname;
     public cell_color player_color;
-    private board curr_board = new board(player_color);
+    private board curr_board;
 
     public agent(String group, cell_color color, String first_move) {
         groupname = group;
         player_color = color;
+        curr_board = new board(player_color);
         ai_loop();
     }
 
@@ -108,7 +44,6 @@ public class agent {
             move_writer.flush();
             move_writer.write(our_move);
             move_writer.close();
-            System.out.println("Got through test AI loop");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -118,6 +53,17 @@ public class agent {
     }
 
     public String choose_next_move(String opponent_move) {
+        String[] opponentValueStrings = opponent_move.split(" ");
+        int opponentCol = columnLetters.indexOf(opponentValueStrings[1]);
+        int opponentRow = Integer.parseInt(opponentValueStrings[2]) - 1;
+        cell opponentCell = new cell();
+        opponentCell.setCol(opponentCol);
+        opponentCell.setRow(opponentRow);
+        if (player_color == cell_color.BLUE) opponentCell.setColor(cell_color.ORANGE);
+        else opponentCell.setColor(cell_color.BLUE);
+        this.curr_board = apply_move(curr_board, opponentCell, opponentCell.getColor());
+        miniMove ourMove = minimax(curr_board, 3, true, null, -10000, 10000);
+        
         return "test";
     }
 
@@ -155,7 +101,7 @@ public class agent {
      */
     public miniMove minimax(board currentBoardState, int depth, boolean ourMove, cell currentMove, int alpha, int beta){
         board newBoardState = null;
-        miniMove returnMove = null;
+        miniMove returnMove = new miniMove();
         List <cell> children = null;
         List <miniMove> childValues = null;
 
@@ -164,7 +110,21 @@ public class agent {
             returnMove.setMove(currentMove);
             return returnMove;
         }else{
-            children =  generate_moves(currentBoardState);
+            children =  generate_moves(currentBoardState, player_color);
+
+            //check if end state
+            if (children.isEmpty()) {
+                //if we have no moves, check if the enemy also has no moves
+                cell_color color_to_check;
+                if (player_color == cell_color.BLUE) color_to_check = cell_color.ORANGE;
+                else color_to_check = cell_color.BLUE;
+                List<cell> enemy_children = generate_moves(currentBoardState, color_to_check);
+                if (enemy_children.isEmpty()) {
+                    returnMove.setValue(evaluation(currentMove));
+                    returnMove.setMove(currentMove);
+                    return returnMove;
+                }
+            }
 
             //check valid moves
             //then run minimax on that
@@ -173,7 +133,11 @@ public class agent {
 
             for (cell c: children){
 
-                newBoardState = apply_move(currentBoardState, c);
+                cell_color curr_col;
+                if (ourMove) curr_col = cell_color.BLUE;
+                else curr_col = cell_color.ORANGE;
+
+                newBoardState = apply_move(currentBoardState, c, curr_col);
                 currentChildVal = minimax(newBoardState, depth-1, !ourMove, c, alpha, beta);
 
                 //alpha beta pruning
@@ -236,16 +200,27 @@ public class agent {
         }
     }
 
-    private board apply_move(board new_board, cell cell) {
-        return new_board;
+    private board apply_move(board board, cell cell, cell_color color) {
+
+        board.place_piece(cell.getRow(), cell.getCol(), color);
+
+        board.capture(cell);
+
+        return board;
     }
 
-    private List<cell> generate_moves(board currBoard) {
+    private List<cell> generate_moves(board currBoard, cell_color color) {
+        List<cell> validMoves = new ArrayList<>();
 
-        return null;
+        validMoves = currBoard.find_valid_moves(color);
+
+        return validMoves;
     }
 
     private int evaluation(cell currentMove) {
+
+
+
         return 0;
     }
 
