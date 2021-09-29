@@ -494,7 +494,31 @@ public class board {
      * @param possibleEnemyCell, the cell to check if enemy
      * @return
      */
-    public boolean isEnemyCell(cell possibleEnemyCell, cell_color curr_color) {
+    public boolean isEnemyCell(cell possibleEnemyCell) {
+        boolean result = true;
+
+        if(possibleEnemyCell == null){
+            result = false;
+        }
+
+        if (playerColor == possibleEnemyCell.getColor()) {
+            result = false;
+        }
+
+        if(possibleEnemyCell.getColor() == cell_color.EMPTY){
+            result = false;
+        }
+
+        return result;
+    }
+
+    /**
+     * check to see if the given cell and one of its adjacent cells
+     *
+     * @param possibleEnemyCell, the cell to check if enemy
+     * @return
+     */
+    public boolean anotherIsEnemyCell(cell possibleEnemyCell, cell_color curr_color) {
         boolean result = true;
 
         if(possibleEnemyCell == null){
@@ -522,7 +546,17 @@ public class board {
         return result;
     }
 
-    public boolean isPlayerCell(cell possiblePlayerCell, cell_color curr_color) {
+    public boolean isPlayerCell(cell possiblePlayerCell) {
+        boolean result = false;
+
+        if (playerColor == possiblePlayerCell.getColor()) {
+            result = true;
+        }
+
+        return result;
+    }
+
+    public boolean anotherIsPlayerCell(cell possiblePlayerCell, cell_color curr_color) {
         boolean result = false;
 
         if (curr_color == possiblePlayerCell.getColor()) {

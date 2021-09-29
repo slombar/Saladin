@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 public class agent {
@@ -24,15 +25,15 @@ public class agent {
 
     public void ai_loop() {
         //check for groupname.go
-        File group_file = new File(groupname + ".go");
+        File group_file = new File("../../../referee/" + groupname + ".go");
         while (!group_file.exists()) {/*languish*/}
 
         //if that exists, check for end_game
-        File end_file = new File("end_game");
+        File end_file = new File("../../../referee/end_game");
         if (end_file.exists()) return; //if that exists, game is done *crab rave*
 
         //if no end_game, czech move_file
-        File move_file = new File("move_file");
+        File move_file = new File("../../../referee/move_file");
         String opponent_move;
         try {
             Scanner move_scanner = new Scanner(move_file);
@@ -53,6 +54,13 @@ public class agent {
     }
 
     public String choose_next_move(String opponent_move) {
+        if(opponent_move == "" || opponent_move == null){
+            cell ourCell = null;
+            ourCell.setRow(4);
+            ourCell.setCol(3);
+
+            this.curr_board = apply_move(curr_board, ourCell, ourCell.getColor());
+        }
         String[] opponentValueStrings = opponent_move.split(" ");
         int opponentCol = columnLetters.indexOf(opponentValueStrings[1]);
         int opponentRow = Integer.parseInt(opponentValueStrings[2]) - 1;
@@ -62,9 +70,16 @@ public class agent {
         if (player_color == cell_color.BLUE) opponentCell.setColor(cell_color.ORANGE);
         else opponentCell.setColor(cell_color.BLUE);
         this.curr_board = apply_move(curr_board, opponentCell, opponentCell.getColor());
-        miniMove ourMove = minimax(curr_board, 3, true, null, -10000, 10000);
-        
-        return "test";
+
+        cell ourMove = randomMove();
+        //miniMove ourMove = minimax(curr_board, 3, true, null, -10000, 10000);
+
+        //print output
+
+        char colString   = columnLetters.charAt(ourMove.getCol());
+        String rowString = String.valueOf(ourMove.getRow());
+
+        return "Saladin " + rowString + " " + colString + "\n";
     }
 
     public boolean isEnemyCell(cell possibleEnemyCell){
@@ -156,8 +171,6 @@ public class agent {
                         beta = currentChildVal.getValue();
                     }
                 }
-
-
             }
 
             if(ourMove){
@@ -217,11 +230,27 @@ public class agent {
         return validMoves;
     }
 
+
+
     private int evaluation(cell currentMove) {
-
-
-
         return 0;
+    }
+
+    /**
+     * Generates a random move based on the current board state
+     * @return
+     */
+    private cell randomMove(){
+        Random rand = new Random();
+        int upperbound = 8;
+        cell move = null;
+        List <cell> moves = generate_moves(curr_board, player_color);
+        int int_random = rand.nextInt(upperbound);
+
+        move = moves.get(int_random);
+
+        return move;
+
     }
 
 }
