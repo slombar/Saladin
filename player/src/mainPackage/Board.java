@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Board {
-    private Cell[][] board;
+    public Cell[][] board;
     private CellColor playerColor;
     private CellColor currentColor; //TODO currentColor vs. playerColor
     private Direction directions = new Direction();
-    private int boardMin = 0;
-    private int boardMax = 7;
+    public int boardMin = 0;
+    public int boardMax = 7;
 
     /**
      * Constructor for the Board class
@@ -18,6 +18,8 @@ public class Board {
      * @param pc, the color of our Agent
      */
     public Board(CellColor pc) {
+
+        // TODO do we need to store multiple boards to handle minimax depth?
         playerColor = pc;
         board = new Cell[8][8];
     }

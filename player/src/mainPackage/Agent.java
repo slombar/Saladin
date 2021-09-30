@@ -23,39 +23,62 @@ public class Agent {
         aiLoop();
     }
 
-    public void aiLoop() {
-        //check for groupname.go
-        File groupFile = new File("../../../../referee/" + groupName + ".go");
-        while (!groupFile.exists()) {/*languish*/}
+    private boolean goFileExists() {
+        File goFile = new File("../../../../referee/" + groupName + ".go");
+        return goFile.exists();
+    }
 
-        System.out.println("Found file: " + groupFile.getName());
-
-        //if groupname.go exists, check for end_game file
+    private void waitForEndGameFile() {
         File endFile = new File("../../../../referee/end_game");
         if (endFile.exists()) return; //if that exists, game is done *crab rave*
+    }
 
-        //if no end_game file exists, check for the move_file
-        File moveFile = new File("../../../../referee/move_file");
+    private String readOpponentMove(File moveFile) {
         String opponentMove;
+
         try {
             Scanner moveScanner = new Scanner(moveFile);
             opponentMove = moveScanner.nextLine();
             System.out.println("Opponent's Move: " + opponentMove);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return opponentMove;
+    }
 
-            String ourMove = chooseNextMove(opponentMove);
-            System.out.println("Our Move: " + ourMove);
-
-            FileWriter moveWriter = new FileWriter(moveFile,false);
+    private void writeOurMoveToFile(File moveFile, String ourMove) {
+        FileWriter moveWriter;
+        try {
+            moveWriter = new FileWriter(moveFile,false);
             moveWriter.flush();
             moveWriter.write(ourMove);
             moveWriter.close();
-
-            System.out.println("We printed the line: " + ourMove + " to the move_file.");
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        while (groupFile.exists()) {/*wait until our group file gets removed*/}
+        System.out.println("We printed the line: " + ourMove + " to the move_file.");
+    }
+
+    public void aiLoop() {
+        //check for groupname.go
+        while (!goFileExists()) {};
+
+        //if groupname.go exists, check for end_game file
+        waitForEndGameFile();
+
+        //if no end_game file exists, check for the move_file
+        File moveFile = new File("../../../../referee/move_file");
+
+
+        String opponentMove = readOpponentMove(moveFile);
+        String ourMove = chooseNextMove(opponentMove);
+        System.out.println("Our Move: " + ourMove);
+
+        writeOurMoveToFile(moveFile, ourMove);
+
+        while (goFileExists()) {/*wait until our group file gets removed*/}
         aiLoop(); //run aiLoop() again
     }
 
@@ -127,7 +150,8 @@ public class Agent {
         List <MiniMove> childValues = null;
 
         if(depth == 0){
-            returnMove.setValue(evaluation(currentMove));
+            // TODO needs to take board in
+            // returnMove.setValue(evaluation(currentMove));
             returnMove.setMove(currentMove);
             return returnMove;
         }else{
@@ -141,7 +165,8 @@ public class Agent {
                 else colorToCheck = CellColor.BLUE;
                 List<Cell> enemyChildren = generateMoves(currentBoardState, colorToCheck);
                 if (enemyChildren.isEmpty()) {
-                    returnMove.setValue(evaluation(currentMove));
+                    // TODO needs to take board in
+                    // returnMove.setValue(evaluation(currentMove));
                     returnMove.setMove(currentMove);
                     return returnMove;
                 }
@@ -238,8 +263,28 @@ public class Agent {
 
 
 
-    private int evaluation(Cell currentMove) {
-        return 0;
+    /**
+     * Given a board state, evaluate the board.
+     * @param currBoard
+     * @return
+     */
+    private int evaluation(Board currBoard) {
+        int sum = 0;
+        for (int row = currBoard.boardMin; row < currBoard.boardMax; row++) {
+            for (int col = currBoard.boardMin; col < currBoard.boardMax; col++) {
+
+                //determine the current Cell
+                Cell currentCell = currBoard.board[row][col];
+                if (currBoard.isPlayerCell(currentCell)) {
+                    sum++;
+                }
+                else if (currBoard.isEnemyCell(currentCell)) {
+                    sum--;
+                }
+
+            }
+        }
+        return sum;
     }
 
     /**
