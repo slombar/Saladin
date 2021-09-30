@@ -14,7 +14,7 @@ from Util import TerminalColor
 
 class Direction(Enum):
     """
-    Enum of possible directions on an Othello board
+    Enum of possible directions on an Othello Board
     """
     UP = (-1, 0)
     UP_LEFT = (-1, -1)
@@ -28,7 +28,7 @@ class Direction(Enum):
 
 class PieceColor(Enum):
     """
-    Enum of possible piece colors, or none for an empty spot, on an Othello board
+    Enum of possible piece colors, or none for an empty spot, on an Othello Board
     """
     NONE = "*"
     BLUE = TerminalColor.BLUE.value + "B" + TerminalColor.NRM.value
@@ -60,7 +60,7 @@ def out_of_bounds(row: int, col: int) -> bool:
     Check if coordinates are out of bounds
     :param row: Integer row coordinate
     :param col: Integer column coordinate
-    :return: True if out of bounds, false if on board
+    :return: True if out of bounds, false if on Board
     """
     if (row < 0) or (row > 7) or (col < 0) or (col > 7):
         return True
@@ -70,15 +70,15 @@ def out_of_bounds(row: int, col: int) -> bool:
 
 class Board:
     """
-    Class representing an Othello board
+    Class representing an Othello Board
     """
     board = [PieceColor.NONE] * 64
 
     def __init__(self):
         """
-        Initialize Othello board
+        Initialize Othello Board
         """
-        # Setup initial board state
+        # Setup initial Board state
         self.set_piece(5, 'D', PieceColor.BLUE)
         self.set_piece(5, 'E', PieceColor.ORANGE)
         self.set_piece(4, 'D', PieceColor.ORANGE)
@@ -86,19 +86,19 @@ class Board:
 
     def _get_piece(self, row: int, col: int) -> PieceColor:
         """
-        Get piece at given coordinates on Othello board
+        Get piece at given coordinates on Othello Board
         :param row: Row in the form 0-7
         :param col: Column in the form 0-7
-        :return: PieceColor at (row, col) on board
+        :return: PieceColor at (row, col) on Board
         """
         return self.board[row * 8 + col]
 
     def get_piece(self, row: int, col: str) -> PieceColor:
         """
-        Get piece at given coordinates on Othello board
+        Get piece at given coordinates on Othello Board
         :param row: Row in the form 1-8
         :param col: Column in the form A-H
-        :return: PieceColor at (row, col) on board
+        :return: PieceColor at (row, col) on Board
         """
         # Convert coordinates to internal form
         coords = interpret_coords(row, col)
@@ -165,7 +165,7 @@ class Board:
         if self.board[row * 8 + col] != PieceColor.NONE:
             return False
 
-        # Make change to board
+        # Make change to Board
         self.board[row * 8 + col] = color
 
         # Check for envelopment
@@ -194,14 +194,14 @@ class Board:
 
     def is_full(self) -> bool:
         """
-        Check if the board is completely full
-        :return: True if the board is completely full, otherwise False
+        Check if the Board is completely full
+        :return: True if the Board is completely full, otherwise False
         """
         return self.board.count(PieceColor.NONE) == 0
 
     def get_counts(self) -> {}:
         """
-        Get the counts of each PieceColor currently on the board
+        Get the counts of each PieceColor currently on the Board
         :return: Dict of {PieceColor: Count, ...}
         """
 
@@ -209,7 +209,7 @@ class Board:
         blue = 0
         orange = 0
 
-        # Count pieces of each color on board
+        # Count pieces of each color on Board
         for color in self.board:
             if color == PieceColor.BLUE:
                 blue += 1
@@ -233,8 +233,8 @@ class Board:
 
     def __str__(self) -> str:
         """
-        Convert this board to a pretty-printed string!
-        :return: Pretty-printed string displaying board
+        Convert this Board to a pretty-printed string!
+        :return: Pretty-printed string displaying Board
         """
         out = ""
         for i in range(8):

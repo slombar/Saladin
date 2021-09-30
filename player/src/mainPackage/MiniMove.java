@@ -1,12 +1,12 @@
-package main_pkg;
+package mainPackage;
 
-public class miniMove {
+public class MiniMove {
     int value = 0;
-    cell move = null;
+    Cell move = null;
 
-    public miniMove() {
+    public MiniMove() {
         this.value = 0;
-        this.move = new cell();
+        this.move = new Cell();
     }
 
     public int getValue() {
@@ -17,11 +17,11 @@ public class miniMove {
         this.value = value;
     }
 
-    public cell getMove() {
+    public Cell getMove() {
         return move;
     }
 
-    public void setMove(cell move) {
+    public void setMove(Cell move) {
         this.move = move;
     }
 }

@@ -65,13 +65,13 @@ def main():
     # Create game
     game = Game(p1, p2)
 
-    # Display initial board
+    # Display initial Board
     print("Initial Board:\n{b}\n".format(b=game.board))
 
     # Create empty move_file
     open("move_file", "w").close()
 
-    # Play game until the board is full or there are no more legal moves
+    # Play game until the Board is full or there are no more legal moves
     while not game.board.is_full() and (game.has_legal_move(game.player_one) or game.has_legal_move(game.player_two)):
         player = game.get_next_player()
 
@@ -133,7 +133,7 @@ def main():
     if not game.game_over:
         game.end(EndCondition.VALID)
 
-    # Print final state of board
+    # Print final state of Board
     print("Final Board:\n{b}".format(b=game.board))
 
 

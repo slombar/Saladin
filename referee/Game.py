@@ -20,7 +20,7 @@ class EndCondition(Enum):
     INVALID = "Invalid move!"
     OOO = "Out-of-order move!"
     TIME_OUT = "Time out!"
-    VALID = "The winning player has more discs on the board!"
+    VALID = "The winning player has more discs on the Board!"
     TIE = "Match TIED!"
 
 
@@ -43,7 +43,7 @@ class Game:
         self.player_one = player_one
         self.player_two = player_two
 
-        # Initialize this game's board
+        # Initialize this game's Board
         self.board = Board()
 
     def get_next_player(self) -> str:
