@@ -6,6 +6,10 @@ import java.util.List;
 public class Board {
     private Cell[][] board;
     private CellColor playerColor;
+    private CellColor currentColor; //TODO currentColor vs. playerColor
+    private Direction directions = new Direction();
+    private int boardMin = 0;
+    private int boardMax = 7;
 
     /**
      * Constructor for the Board class
@@ -30,83 +34,109 @@ public class Board {
     }
 
     /**
+     * Checks if coordinates are out of bounds
+     */
+    public boolean outOfBounds(int row, int col) {
+        if (row < 0 || row > 7 || col < 0 || col > 7) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
      * Captures all pieces after placing a new piece
      *
      * @param capturingCell, the Cell where the newest piece was placed
      */
     public void capture(Cell capturingCell) {
-
-        //up
-        int[] up = {1, 0};
-        captureLine(capturingCell, up);
-
-        //down
-        int[] down = {-1, 0};
-        captureLine(capturingCell, down);
-
-        //left
-        int[] left = {0, -1};
-        captureLine(capturingCell, left);
-
-        //right
-        int[] right = {0, 1};
-        captureLine(capturingCell, right);
-
-        //up left
-        int[] upLeft = {1, -1};
-        captureLine(capturingCell, upLeft);
-
-        //up right
-        int[] upRight = {1, 1};
-        captureLine(capturingCell, upRight);
-
-        //down left
-        int[] downLeft = {-1, -1};
-        captureLine(capturingCell, downLeft);
-
-        //down right
-        int[] downRight = {-1, 1};
-        captureLine(capturingCell, downRight);
-
+        captureLine(capturingCell, directions.UP);
+        captureLine(capturingCell, directions.DOWN);
+        captureLine(capturingCell, directions.LEFT);
+        captureLine(capturingCell, directions.RIGHT);
+        captureLine(capturingCell, directions.UP_LEFT);
+        captureLine(capturingCell, directions.UP_RIGHT);
+        captureLine(capturingCell, directions.DOWN_LEFT);
+        captureLine(capturingCell, directions.DOWN_RIGHT);
     }
 
     private void captureLine(Cell capturingCell, int[] vector) {
-        if (vector.length == 2) {
-            CellColor capturingColor = capturingCell.getColor();
-            int currRow = capturingCell.getRow() + vector[0];
-            int currCol = capturingCell.getCol() + vector[1];
-            Cell currCell = board[currRow][currCol];
+        // Update positions
+        int currRow = capturingCell.getRow() + vector[0];
+        int currCol = capturingCell.getCol() + vector[1];
 
-            if (currCell.getColor() == capturingColor
-                    || currCell.getColor() == CellColor.EMPTY
-                    || currRow > 7
-                    || currCol > 7
-                    || currRow < 0
-                    || currCol < 0) return;
-            else {
-                ArrayList<Cell> cellsToChange= new ArrayList<>();
-                cellsToChange.add(currCell);
+        if (outOfBounds(currRow, currCol)) {
+            return;
+        }
 
-                while (true) {
-                    currCell = board[currRow + vector[0]][currCol + vector[1]];
-                    currRow = currCell.getRow();
-                    currCol = currCell.getCol();
+        Cell currCell = board[currRow][currCol];
 
-                    if (currCell.getColor() == capturingColor) break;
-                    else if (currCell.getColor() == CellColor.EMPTY
-                            || currRow > 7
-                            || currCol > 7
-                            || currRow < 0
-                            || currCol < 0) return;
+        ArrayList<Cell> cellsToChange = new ArrayList<>();
 
-                    else cellsToChange.add(currCell);
-                }
+        // Keep going until we hit a non-enemy cell
+        while (isEnemyCell(currCell)) {
+            cellsToChange.add(currCell);
 
-                //loop through cellsToChange and update the Board
-                for (Cell c : cellsToChange) {
-                    placePiece(c.getRow(), c.getCol(), c.getColor());
-                }
+            currRow += vector[0];
+            currCol += vector[1];
+
+            if (outOfBounds(currRow, currCol)) {
+                return;
             }
+            currCell = board[currRow][currCol];
+        }
+
+        // If we find a player cell at the end of the line, capture all the pieces on the way.
+        if (isPlayerCell(currCell)) {
+            for (Cell c : cellsToChange) {
+                placePiece(c.getRow(), c.getCol(), c.getColor());
+            }
+        }
+    }
+
+    private boolean isValidMove(Cell possibleMove) {
+
+        if (captureLineTest(possibleMove, directions.UP) 
+        || captureLineTest(possibleMove, directions.DOWN)
+        || captureLineTest(possibleMove, directions.LEFT)
+        || captureLineTest(possibleMove, directions.RIGHT)
+        || captureLineTest(possibleMove, directions.UP_LEFT)
+        || captureLineTest(possibleMove, directions.UP_RIGHT)
+        || captureLineTest(possibleMove, directions.DOWN_LEFT)
+        || captureLineTest(possibleMove, directions.DOWN_RIGHT)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    private boolean captureLineTest(Cell capturingCell, int[] vector) {
+        int currRow = capturingCell.getRow() + vector[0];
+        int currCol = capturingCell.getCol() + vector[1];
+
+        if (outOfBounds(currRow, currCol)) {
+            return false;
+        }
+
+        Cell currCell = board[currRow][currCol];
+
+        while (isEnemyCell(currCell)) {
+            currRow += vector[0];
+            currCol += vector[1];
+
+            if (outOfBounds(currRow, currCol)) {
+                return false;
+            }
+            currCell = board[currRow][currCol];
+        }
+
+        if (isPlayerCell(currCell)) {
+            return true;
+        }
+        else {
+            return false;
         }
     }
 
@@ -137,351 +167,20 @@ public class Board {
      * @return a list of valid moves in the form of cells
      */
     public List<Cell> findValidMoves(CellColor currColor) {
-
         List<Cell> validMoves = new ArrayList<>();
-        int startOfBoardNum = 1;
-        int endOfBoardNum = 8;
-        Cell currentCell = null;
-        Cell TLcurrentCell = null;
-        Cell TcurrentCell = null;
-        Cell TRcurrentCell = null;
-        Cell LcurrentCell = null;
-        Cell RcurrentCell = null;
-        Cell BLcurrentCell = null;
-        Cell BcurrentCell = null;
-        Cell BRcurrentCell = null;
 
         //determine legal moves by using adjacent cells
-        for (int row = startOfBoardNum; row < endOfBoardNum; row++) {
-            for (int col = startOfBoardNum; col < endOfBoardNum; col++) {
+        for (int row = boardMin; row < boardMax; row++) {
+            for (int col = boardMin; col < boardMax; col++) {
 
                 //determine the current Cell
-                currentCell = board[row][col];
+                Cell currentCell = board[row][col];
 
-                if (currentCell.getColor() == CellColor.EMPTY) {
-
-                    //for each Cell, find adjacent cells
-                    TLcurrentCell = board[row - 1][col - 1];
-                    TcurrentCell = board[row - 1][col];
-                    TRcurrentCell = board[row - 1][col + 1];
-                    LcurrentCell = board[row][col - 1];
-                    RcurrentCell = board[row][col + 1];
-                    BLcurrentCell = board[row + 1][col - 1];
-                    BcurrentCell = board[row + 1][col];
-                    BRcurrentCell = board[row + 1][col + 1];
-
-                    /*check if we are on a bordering Cell (ie, it will not have all adjacent cells)*/
-                    //check top and bottom walls
-                    if (currentCell.getRow() == startOfBoardNum) { //is the current Cell on the top row of the Board?
-                        //don't add any top adjacent cells
-                        TLcurrentCell = null;
-                        TcurrentCell = null;
-                        TRcurrentCell = null;
-
-                    } else if (currentCell.getRow() == endOfBoardNum) { //is the current Cell on the bottom row of the Board?
-                        //don't add any bottom adjacent cells
-                        BLcurrentCell = null;
-                        BcurrentCell = null;
-                        BRcurrentCell = null;
+                if (isEmptyCell(currentCell)) {
+                    if (isValidMove(currentCell)) {
+                        validMoves.add(currentCell);
                     }
-
-                    //check right and left walls
-                    if (currentCell.getCol() == startOfBoardNum) { //is the current Cell on the left border of the Board?
-                        //don't add any left adjacent cells
-                        TLcurrentCell = null;
-                        LcurrentCell = null;
-                        BLcurrentCell = null;
-                    } else if (currentCell.getCol() == endOfBoardNum) { // is the current Cell on the right border of the Board?
-                        //don't add any right adjacent cells
-                        TRcurrentCell = null;
-                        RcurrentCell = null;
-                        BRcurrentCell = null;
-                    }
-
-                    /* Check if any adjacent cells are enemies */
-                    //top left Cell
-                    if (isEnemyCell(TLcurrentCell)){
-                        boolean exit = false;
-                        int tempRow = row;
-                        int tempCol = col;
-                        Cell nextCell = TLcurrentCell;
-
-                        do {
-                            //iterate to the next Cell
-                            tempRow--;
-                            tempCol--;
-
-                            //make sure we are in range of the Board ie not at a wall
-                            if (tempRow >= startOfBoardNum && tempCol >= startOfBoardNum) {
-
-                                //instantiate the next Cell
-                                nextCell = board[tempRow][tempCol];
-
-                                //is the next Cell a player color?
-                                if (isPlayerCell(nextCell)) {
-                                    // if a player Cell is found, then the move is valid and we can add it to the list
-                                    validMoves.add(currentCell);
-
-                                    //check if the Cell is empty, otherwise it's an enemy Cell
-                                } else if (isEmptyCell(nextCell)) {
-                                    //not a valid move because we reached an empty Cell instead of a player Cell
-                                    exit = true;
-                                }
-
-                            } else {
-                                //not a valid move because we reached the end of the Board without finding a player
-                                exit = true;
-                            }
-
-                        } while (isEnemyCell(nextCell) && !exit);
-                    }
-                    //top Cell
-                    if (isEnemyCell(TcurrentCell)) {
-                        boolean exit = false;
-                        int tempRow = row;
-                        Cell nextCell = TcurrentCell;
-
-                        do {
-                            //iterate to the next Cell, in this case, the above column
-                            tempRow--;
-
-                            //make sure we are in range of the Board ie not at a wall
-                            if (tempRow >= startOfBoardNum) {
-
-                                //instantiate the next Cell
-                                nextCell = board[tempRow][col];
-
-                                //is the next Cell a player color?
-                                if (isPlayerCell(nextCell)) {
-                                    // if a player Cell is found, then the move is valid and we can add it to the list
-                                    validMoves.add(currentCell);
-
-                                    //check if the Cell is empty, otherwise it's an enemy Cell
-                                } else if (isEmptyCell(nextCell)) {
-                                    //not a valid move because we reached an empty Cell instead of a player Cell
-                                    exit = true;
-                                }
-
-                            } else {
-                                //not a valid move because we reached the end of the Board
-                                exit = true;
-                            }
-
-                        } while (isEnemyCell(nextCell) && !exit);
-                    }
-                    //top right Cell
-                    if (isEnemyCell(TRcurrentCell)) {
-                        boolean exit = false;
-                        int tempRow = row;
-                        int tempCol = col;
-                        Cell nextCell = TRcurrentCell;
-
-                        do {
-                            //iterate to the next Cell
-                            tempRow--;
-                            tempCol++;
-
-                            //make sure we are in range of the Board ie not at a wall
-                            if (tempRow >= startOfBoardNum && tempCol <= endOfBoardNum) {
-
-                                //instantiate the next Cell
-                                nextCell = board[tempRow][tempCol];
-
-                                //is the next Cell a player color?
-                                if (isPlayerCell(nextCell)) {
-                                    // if a player Cell is found, then the move is valid and we can add it to the list
-                                    validMoves.add(currentCell);
-
-                                    //check if the Cell is empty, otherwise it's an enemy Cell
-                                } else if (isEmptyCell(nextCell)) {
-                                    //not a valid move because we reached an empty Cell instead of a player Cell
-                                    exit = true;
-                                }
-
-                            } else {
-                                //not a valid move because we reached the end of the Board
-                                exit = true;
-                            }
-
-                        } while (isEnemyCell(nextCell) && !exit);
-                    }
-                   //left Cell
-                    if (isEnemyCell(LcurrentCell)) {
-                        boolean exit = false;
-                        int tempCol = col;
-                        Cell nextCell = BcurrentCell;
-
-                        do {
-                            //iterate to the next Cell
-                            tempCol--;
-
-                            //make sure we are in range of the Board ie not at a wall
-                            if (tempCol >= startOfBoardNum) {
-
-                                //instantiate the next Cell
-                                nextCell = board[tempCol][col];
-
-                                //is the next Cell a player color?
-                                if (isPlayerCell(nextCell)) {
-                                    // if a player Cell is found, then the move is valid and we can add it to the list
-                                    validMoves.add(currentCell);
-
-                                    //check if the Cell is empty, otherwise it's an enemy Cell
-                                } else if (isEmptyCell(nextCell)) {
-                                    //not a valid move because we reached an empty Cell instead of a player Cell
-                                    exit = true;
-                                }
-
-                            } else {
-                                //not a valid move because we reached the end of the Board
-                                exit = true;
-                            }
-
-                        } while (isEnemyCell(nextCell) && !exit);
-                    }
-                    //right Cell
-                    if (isEnemyCell(RcurrentCell)) {
-                        boolean exit = false;
-                        int tempCol = col;
-                        Cell nextCell = BcurrentCell;
-
-                        do {
-                            //iterate to the next Cell
-                            tempCol++;
-
-                            //make sure we are in range of the Board ie not at a wall
-                            if (tempCol <= endOfBoardNum) {
-
-                                //instantiate the next Cell
-                                nextCell = board[row][tempCol];
-
-                                //is the next Cell a player color?
-                                if (isPlayerCell(nextCell)) {
-                                    // if a player Cell is found, then the move is valid and we can add it to the list
-                                    validMoves.add(currentCell);
-
-                                    //check if the Cell is empty, otherwise it's an enemy Cell
-                                } else if (isEmptyCell(nextCell)) {
-                                    //not a valid move because we reached an empty Cell instead of a player Cell
-                                    exit = true;
-                                }
-
-                            } else {
-                                //not a valid move because we reached the end of the Board
-                                exit = true;
-                            }
-
-                        } while (isEnemyCell(nextCell) && !exit);
-                    }
-                    if (isEnemyCell(BLcurrentCell)) {
-                        boolean exit = false;
-                        int tempRow = row;
-                        int tempCol = col;
-                        Cell nextCell = BcurrentCell;
-
-                        do {
-                            //iterate to the next Cell
-                            tempRow++;
-                            tempCol--;
-
-                            //make sure we are in range of the Board ie not at a wall
-                            if (tempRow <= endOfBoardNum && tempCol >= startOfBoardNum) {
-
-                                //instantiate the next Cell
-                                nextCell = board[tempRow][tempCol];
-
-                                //is the next Cell a player color?
-                                if (isPlayerCell(nextCell)) {
-                                    // if a player Cell is found, then the move is valid and we can add it to the list
-                                    validMoves.add(currentCell);
-
-                                    //check if the Cell is empty, otherwise it's an enemy Cell
-                                } else if (isEmptyCell(nextCell)) {
-                                    //not a valid move because we reached an empty Cell instead of a player Cell
-                                    exit = true;
-                                }
-
-                            } else {
-                                //not a valid move because we reached the end of the Board
-                                exit = true;
-                            }
-
-                        } while (isEnemyCell(nextCell) && !exit);
-                    }
-                    //bottom Cell
-                    if (isEnemyCell(BcurrentCell)) {
-                        boolean exit = false;
-                        int tempRow = row;
-                        Cell nextCell = BcurrentCell;
-
-                        do {
-                            //iterate to the next Cell
-                            tempRow++;
-
-                            //make sure we are in range of the Board ie not at a wall
-                            if (tempRow <= endOfBoardNum) {
-
-                                //instantiate the next Cell
-                                nextCell = board[tempRow][col];
-
-                                //is the next Cell a player color?
-                                if (isPlayerCell(nextCell)) {
-                                    // if a player Cell is found, then the move is valid and we can add it to the list
-                                    validMoves.add(currentCell);
-
-                                    //check if the Cell is empty, otherwise it's an enemy Cell
-                                } else if (isEmptyCell(nextCell)) {
-                                    //not a valid move because we reached an empty Cell instead of a player Cell
-                                    exit = true;
-                                }
-
-                            } else {
-                                //not a valid move because we reached the end of the Board
-                                exit = true;
-                            }
-
-                        } while (isEnemyCell(nextCell) && !exit);
-
-                    }
-                    if (isEnemyCell(BRcurrentCell)) {
-                        boolean exit = false;
-                        int tempRow = row;
-                        int tempCol = col;
-                        Cell nextCell = BcurrentCell;
-
-                        do {
-                            //iterate to the next Cell
-                            tempRow++;
-                            tempCol++;
-
-                            //make sure we are in range of the Board ie not at a wall
-                            if (tempRow <= endOfBoardNum && tempCol <= endOfBoardNum) {
-
-                                //instantiate the next Cell
-                                nextCell = board[tempRow][tempCol];
-
-                                //is the next Cell a player color?
-                                if (isPlayerCell(nextCell)) {
-                                    // if a player Cell is found, then the move is valid and we can add it to the list
-                                    validMoves.add(currentCell);
-
-                                    //check if the Cell is empty, otherwise it's an enemy Cell
-                                } else if (isEmptyCell(nextCell)) {
-                                    //not a valid move because we reached an empty Cell instead of a player Cell
-                                    exit = true;
-                                }
-
-                            } else {
-                                //not a valid move because we reached the end of the Board
-                                exit = true;
-                            }
-
-                        } while (isEnemyCell(nextCell) && !exit);
-                    }
-
                 }
-
-
             }
         }
 
@@ -501,31 +200,7 @@ public class Board {
             result = false;
         }
 
-        if (playerColor == possibleEnemyCell.getColor()) {
-            result = false;
-        }
-
-        if(possibleEnemyCell.getColor() == CellColor.EMPTY){
-            result = false;
-        }
-
-        return result;
-    }
-
-    /**
-     * check to see if the given Cell and one of its adjacent cells
-     *
-     * @param possibleEnemyCell, the Cell to check if enemy
-     * @return
-     */
-    public boolean anotherIsEnemyCell(Cell possibleEnemyCell, CellColor currColor) {
-        boolean result = true;
-
-        if(possibleEnemyCell == null){
-            result = false;
-        }
-
-        if (currColor == possibleEnemyCell.getColor()) {
+        if (currentColor == possibleEnemyCell.getColor()) {
             result = false;
         }
 
@@ -549,17 +224,7 @@ public class Board {
     public boolean isPlayerCell(Cell possiblePlayerCell) {
         boolean result = false;
 
-        if (playerColor == possiblePlayerCell.getColor()) {
-            result = true;
-        }
-
-        return result;
-    }
-
-    public boolean anotherIsPlayerCell(Cell possiblePlayerCell, CellColor currColor) {
-        boolean result = false;
-
-        if (currColor == possiblePlayerCell.getColor()) {
+        if (currentColor == possiblePlayerCell.getColor()) {
             result = true;
         }
 
