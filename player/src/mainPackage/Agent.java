@@ -25,26 +25,32 @@ public class Agent {
 
     public void aiLoop() {
         //check for groupname.go
-        File groupFile = new File("../../../referee/" + groupName + ".go");
+        File groupFile = new File("../../../../referee/" + groupName + ".go");
         while (!groupFile.exists()) {/*languish*/}
 
+        System.out.println("Found file: " + groupFile.getName());
+
         //if groupname.go exists, check for end_game file
-        File endFile = new File("../../../referee/end_game");
+        File endFile = new File("../../../../referee/end_game");
         if (endFile.exists()) return; //if that exists, game is done *crab rave*
 
         //if no end_game file exists, check for the move_file
-        File moveFile = new File("../../../referee/move_file");
+        File moveFile = new File("../../../../referee/move_file");
         String opponentMove;
         try {
             Scanner moveScanner = new Scanner(moveFile);
             opponentMove = moveScanner.nextLine();
+            System.out.println("Opponent's Move: " + opponentMove);
 
             String ourMove = chooseNextMove(opponentMove);
+            System.out.println("Our Move: " + ourMove);
 
             FileWriter moveWriter = new FileWriter(moveFile,false);
             moveWriter.flush();
             moveWriter.write(ourMove);
             moveWriter.close();
+
+            System.out.println("We printed the line: " + ourMove + " to the move_file.");
         } catch (IOException e) {
             e.printStackTrace();
         }

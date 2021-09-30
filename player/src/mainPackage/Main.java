@@ -8,11 +8,13 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("Got group name: " + args[0]);
 
-        File groupNameFile = new File(args[0] + ".go");
-        while(!groupNameFile.exists()) {}
+        File groupNameFile = new File("../../../../referee/"+ args[0] + ".go");
+        while(!groupNameFile.exists()) {
+
+        }
         System.out.println("Found groupname.go");
 
-        File moveFile = new File("move_file");
+        File moveFile = new File("../../../../referee/move_file");
         while(!moveFile.exists()) {}
         System.out.println("Found move file");
 
