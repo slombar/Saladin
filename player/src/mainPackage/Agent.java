@@ -15,22 +15,29 @@ public class Agent {
     private String groupName;
     public CellColor playerColor;
     private Board currentBoard;
+    private CellColor currentTurn;
 
     public Agent(String group, CellColor color, String firstMove) {
         groupName = group;
         playerColor = color;
-        currentBoard = new Board(playerColor);
+        if (firstMove.isEmpty()) {
+            currentTurn = playerColor;
+        }
+        else {
+            currentTurn = Board.getOppositeColor(playerColor);
+        }
+        currentBoard = new Board(playerColor, currentTurn);
         aiLoop();
     }
 
     private boolean goFileExists() {
-        File goFile = new File("../../../../referee/" + groupName + ".go");
+        File goFile = new File("referee/" + groupName + ".go");
         return goFile.exists();
     }
 
-    private void waitForEndGameFile() {
-        File endFile = new File("../../../../referee/end_game");
-        if (endFile.exists()) return; //if that exists, game is done *crab rave*
+    private boolean endGameFileExists() {
+        File endFile = new File("referee/end_game");
+        return endFile.exists();
     }
 
     private String readOpponentMove(File moveFile) {
@@ -63,33 +70,40 @@ public class Agent {
 
     public void aiLoop() {
         //check for groupname.go
-        while (!goFileExists()) {};
+        System.out.println("Checking for groupname.go");
+        while (!goFileExists()) {}
 
         //if groupname.go exists, check for end_game file
-        waitForEndGameFile();
+        if (endGameFileExists()) {
+            return;
+        }
 
         //if no end_game file exists, check for the move_file
-        File moveFile = new File("../../../../referee/move_file");
+        File moveFile = new File("referee/move_file");
+        String opponentMove = "";
+        if (currentTurn != playerColor) {
+            opponentMove = readOpponentMove(moveFile);
+        }
+        Cell ourMove = chooseNextMove(opponentMove);
+        System.out.println("Our Move: " + moveToString(ourMove));
 
+        writeOurMoveToFile(moveFile, moveToString(ourMove));
 
-        String opponentMove = readOpponentMove(moveFile);
-        String ourMove = chooseNextMove(opponentMove);
-        System.out.println("Our Move: " + ourMove);
-
-        writeOurMoveToFile(moveFile, ourMove);
-
+        applyMove(currentBoard, ourMove, playerColor);
         while (goFileExists()) {/*wait until our group file gets removed*/}
         aiLoop(); //run aiLoop() again
     }
 
-    public String chooseNextMove(String opponentMove) {
-        if(opponentMove == "" || opponentMove == null){
-            Cell ourCell = null;
-            ourCell.setRow(4);
-            ourCell.setCol(3);
+    public Cell chooseNextMove(String opponentMove) {
+        Cell ourMove = new Cell();
+        if(opponentMove == null || opponentMove.isEmpty()){
+            ourMove.setRow(5);
+            ourMove.setCol(3);
+            ourMove.setColor(playerColor);
 
-            this.currentBoard = applyMove(currentBoard, ourCell, ourCell.getColor());
+            return ourMove;
         }
+
         String[] opponentValueStrings = opponentMove.split(" ");
         int opponentCol = columnLetters.indexOf(opponentValueStrings[1]);
         int opponentRow = Integer.parseInt(opponentValueStrings[2]) - 1;
@@ -100,15 +114,18 @@ public class Agent {
         else opponentCell.setColor(CellColor.BLUE);
         this.currentBoard = applyMove(currentBoard, opponentCell, opponentCell.getColor());
 
-        Cell ourMove = randomMove();
+        ourMove = randomMove();
         //MiniMove ourMove = minimax(currBoard, 3, true, null, -10000, 10000);
 
         //print output
 
-        char colString   = columnLetters.charAt(ourMove.getCol());
-        String rowString = String.valueOf(ourMove.getRow());
+        return ourMove;
+    }
 
-        return "Saladin " + rowString + " " + colString + "\n";
+    public String moveToString(Cell move) {
+        char colString   = columnLetters.charAt(move.getCol());
+        String rowString = String.valueOf(8 - move.getRow());
+        return groupName + " " + colString + " " + rowString + "\n";
     }
 
     public boolean isEnemyCell(Cell possibleEnemyCell){
@@ -130,13 +147,7 @@ public class Agent {
     }
 
     public boolean isPlayerCell(Cell possiblePlayerCell){
-        boolean result = false;
-
-        if(playerColor == possiblePlayerCell.getColor()){
-            result = true;
-        }
-
-        return result;
+        return playerColor == possiblePlayerCell.getColor();
     }
 
     /**
@@ -229,7 +240,7 @@ public class Agent {
             }
         }
 
-        returnMove.setValue(evaluation(currentMove));
+        // TODO returnMove.setValue(evaluation(currentMove));
         returnMove.setMove(currentMove);
 
         return returnMove;

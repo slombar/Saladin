@@ -6,22 +6,32 @@ import java.util.List;
 public class Board {
     public Cell[][] board;
     private CellColor playerColor;
-    private CellColor currentColor; //TODO currentColor vs. playerColor
+    private CellColor currentColor;
     private Direction directions = new Direction();
     public int boardMin = 0;
     public int boardMax = 7;
 
     /**
      * Constructor for the Board class
-     * creates a blank Board of 8x8
+     * creates a blank Board of 8x8, then fills in starting config.
      *
      * @param pc, the color of our Agent
      */
-    public Board(CellColor pc) {
-
-        // TODO do we need to store multiple boards to handle minimax depth?
+    public Board(CellColor pc, CellColor currentTurn) {
         playerColor = pc;
+        currentColor = currentTurn;
         board = new Cell[8][8];
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                placePiece(i, j, CellColor.EMPTY);
+            }
+        }
+
+        placePiece(3, 3, CellColor.ORANGE);
+        placePiece(3, 4, CellColor.BLUE);
+        placePiece(4, 4, CellColor.ORANGE);
+        placePiece(4, 3, CellColor.BLUE);
     }
 
     /**
@@ -231,5 +241,17 @@ public class Board {
         }
 
         return result;
+    }
+
+    public static CellColor getOppositeColor(CellColor color) {
+        if (color == CellColor.EMPTY) {
+            return CellColor.EMPTY;
+        }
+        else if (color == CellColor.BLUE) {
+            return CellColor.ORANGE;
+        }
+        else {
+            return CellColor.BLUE;
+        }
     }
 }
