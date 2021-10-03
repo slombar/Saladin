@@ -10,7 +10,9 @@ import java.util.Scanner;
 
 public class Agent {
 
-    private String columnLetters = "ABCDEFGH";
+    private String columnLetters = "ABCDEFGH  P";
+
+    private int passIndex = 10;
 
     private String groupName;
     public CellColor playerColor;
@@ -103,13 +105,14 @@ public class Agent {
         Cell ourMove = new Cell();
         if(opponentMove == null || opponentMove.isEmpty()){
             ourMove.setRow(5);
-            ourMove.setCol(3);
+            ourMove.setCol(4);
             ourMove.setColor(playerColor);
 
             return ourMove;
         }
 
         ourMove = randomMove();
+
         //MiniMove ourMove = minimax(currBoard, 3, true, null, -10000, 10000);
 
         //print output
@@ -118,6 +121,9 @@ public class Agent {
     }
 
     public String moveToString(Cell move) {
+        if (move.getCol() == passIndex) {
+            return groupName + " " + "P 1\n";
+        }
         char colString   = columnLetters.charAt(move.getCol());
         String rowString = String.valueOf(8 - move.getRow());
         return groupName + " " + colString + " " + rowString + "\n";
@@ -270,6 +276,12 @@ public class Agent {
 
     private Board applyMove(Board board, Cell cell, CellColor color) {
 
+        if (cell.getCol() == passIndex) {
+            // Pass
+            board.currentColor = Board.getOppositeColor(color);
+            return board;
+        }
+
         board.placePiece(cell.getRow(), cell.getCol(), color);
 
         board.capture(cell);
@@ -326,6 +338,10 @@ public class Agent {
         }
         for (Cell testMove : moves) {
             System.out.println("Testmove internal: Col: " + testMove.getCol() + ", Row: " + testMove.getRow());
+        }
+
+        if (moves.size() == 0) {
+            return null;
         }
         int intRandom = rand.nextInt(moves.size());
 

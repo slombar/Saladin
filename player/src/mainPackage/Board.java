@@ -28,10 +28,10 @@ public class Board {
             }
         }
 
-        placePiece(3, 3, CellColor.BLUE);
-        placePiece(3, 4, CellColor.ORANGE);
-        placePiece(4, 4, CellColor.BLUE);
-        placePiece(4, 3, CellColor.ORANGE);
+        placePiece(3, 3, CellColor.ORANGE);
+        placePiece(3, 4, CellColor.BLUE);
+        placePiece(4, 4, CellColor.ORANGE);
+        placePiece(4, 3, CellColor.BLUE);
     }
 
     /**
