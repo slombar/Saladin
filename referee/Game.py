@@ -20,7 +20,7 @@ class EndCondition(Enum):
     INVALID = "Invalid move!"
     OOO = "Out-of-order move!"
     TIME_OUT = "Time out!"
-    VALID = "The winning player has more discs on the Board!"
+    VALID = "The winning player has more discs on the board!"
     TIE = "Match TIED!"
 
 
@@ -43,7 +43,7 @@ class Game:
         self.player_one = player_one
         self.player_two = player_two
 
-        # Initialize this game's Board
+        # Initialize this game's board
         self.board = Board()
 
     def get_next_player(self) -> str:
@@ -110,6 +110,6 @@ class Game:
         with open("end_game", "w") as fp:
             fp.write(msg)
 
-        color = TerminalColor.GREEN.value if EndCondition == EndCondition.VALID else TerminalColor.RED.value
-        print(color + "Game Over: {m}".format(m=msg) + TerminalColor.NRM.value)
+        color = TerminalColor.GREEN if EndCondition == EndCondition.VALID else TerminalColor.RED
+        print(color + "Game Over: {m}".format(m=msg) + TerminalColor.NRM)
         self.game_over = True
