@@ -19,6 +19,8 @@ public class Agent {
     private Board currentBoard;
     private CellColor currentTurn;
 
+    private int MAX_DEPTH = 3;
+
     public Agent(String group, CellColor color, String firstMove) {
         groupName = group;
         playerColor = color;
@@ -111,11 +113,10 @@ public class Agent {
             return ourMove;
         }
 
-        ourMove = randomMove();
+        // ourMove = randomMove();
 
-        //MiniMove ourMove = minimax(currBoard, 3, true, null, -10000, 10000);
-
-        //print output
+        MinimaxAgent minimaxAgent = new MinimaxAgent(currentBoard, currentTurn, MAX_DEPTH, this);
+        ourMove = minimaxAgent.getMinimaxMove();
 
         return ourMove;
     }
@@ -169,103 +170,6 @@ public class Agent {
         return playerColor == possiblePlayerCell.getColor();
     }
 
-    /**
-     * Min max function with alpha beta pruning
-     * @return a minmaxmove data structure, that contains a chosen score and a chosen move
-     */
-    public MiniMove minimax(Board currentBoardState, int depth, boolean ourMove, Cell currentMove, int alpha, int beta){
-        Board newBoardState = null;
-        MiniMove returnMove = new MiniMove();
-        List <Cell> children = null;
-        List <MiniMove> childValues = null;
-
-        if(depth == 0){
-            // TODO needs to take board in
-            // returnMove.setValue(evaluation(currentMove));
-            returnMove.setMove(currentMove);
-            return returnMove;
-        }else{
-            children =  generateMoves(currentBoardState, playerColor);
-
-            //check if end state
-            if (children.isEmpty()) {
-                //if we have no moves, check if the enemy also has no moves
-                CellColor colorToCheck;
-                if (playerColor == CellColor.BLUE) colorToCheck = CellColor.ORANGE;
-                else colorToCheck = CellColor.BLUE;
-                List<Cell> enemyChildren = generateMoves(currentBoardState, colorToCheck);
-                if (enemyChildren.isEmpty()) {
-                    // TODO needs to take board in
-                    // returnMove.setValue(evaluation(currentMove));
-                    returnMove.setMove(currentMove);
-                    return returnMove;
-                }
-            }
-
-            //check valid moves
-            //then run minimax on that
-
-            MiniMove currentChildVal = null;
-
-            for (Cell c: children){
-
-                CellColor currCol;
-                if (ourMove) currCol = CellColor.BLUE;
-                else currCol = CellColor.ORANGE;
-
-                newBoardState = applyMove(currentBoardState, c, currCol);
-                currentChildVal = minimax(newBoardState, depth-1, !ourMove, c, alpha, beta);
-
-                //alpha beta pruning
-                if(ourMove){
-                    if(alpha >= currentChildVal.getValue()){
-
-                    }else{
-                        childValues.add(currentChildVal);
-                        alpha = currentChildVal.getValue();
-                    }
-                }else{
-                    if(beta <= currentChildVal.getValue()){
-
-                    }else{
-                        childValues.add(currentChildVal);
-                        beta = currentChildVal.getValue();
-                    }
-                }
-            }
-
-            if(ourMove){
-                MiniMove bestMove = new MiniMove();
-                bestMove.setValue(-106969690);
-
-                for (MiniMove childVal:childValues) {
-
-                    if(childVal.getValue() > bestMove.getValue()){
-                        bestMove = childVal;
-                    }
-                }
-               // return childV;
-            }else{
-                MiniMove worstMove = new MiniMove();
-                worstMove.setValue(1000000069);
-
-                for (MiniMove childVal:childValues) {
-
-                    if (childVal.getValue() < worstMove.getValue()) {
-                        worstMove = childVal;
-                    }
-                }
-               // return minVal;
-            }
-        }
-
-        // TODO returnMove.setValue(evaluation(currentMove));
-        returnMove.setMove(currentMove);
-
-        return returnMove;
-    }
-
-
     private boolean better(int chosenScore, int bestScore) {
         if(chosenScore > bestScore){
             return true;
@@ -274,7 +178,7 @@ public class Agent {
         }
     }
 
-    private Board applyMove(Board board, Cell cell, CellColor color) {
+    public Board applyMove(Board board, Cell cell, CellColor color) {
 
         if (cell.getCol() == passIndex) {
             // Pass
@@ -292,11 +196,7 @@ public class Agent {
     }
 
     private List<Cell> generateMoves(Board currBoard, CellColor color) {
-        List<Cell> validMoves = new ArrayList<>();
-
-        validMoves = currBoard.findValidMoves(color);
-
-        return validMoves;
+        return currBoard.findValidMoves(color);
     }
 
 

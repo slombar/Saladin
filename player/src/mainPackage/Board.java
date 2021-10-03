@@ -214,7 +214,6 @@ public class Board {
      * check to see if the given Cell and one of its adjacent cells
      *
      * @param possibleEnemyCell, the Cell to check if enemy
-     * @return
      */
     public boolean isEnemyCell(Cell possibleEnemyCell) {
         return possibleEnemyCell.getColor() == getOppositeColor(currentColor);
@@ -259,5 +258,15 @@ public class Board {
         }
         out += "   A  B  C  D  E  F  G  H";
         return out;
+    }
+
+    public Board deepCopy() {
+        Board copyBoard = new Board(this.playerColor, this.currentColor);
+        for (int row = boardMin; row < boardMax; row++) {
+            for (int col = boardMin; col < boardMax; col++) {
+                copyBoard.board[row][col] = board[row][col];
+            }
+        }
+        return copyBoard;
     }
 }
