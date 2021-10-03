@@ -41,7 +41,7 @@ public class Agent {
     }
 
     private String readOpponentMove(File moveFile) {
-        String opponentMove;
+        String opponentMove = null;
 
         try {
             Scanner moveScanner = new Scanner(moveFile);
@@ -49,7 +49,6 @@ public class Agent {
             System.out.println("Opponent's Move: " + opponentMove);
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
         }
         return opponentMove;
     }
@@ -71,7 +70,7 @@ public class Agent {
     public void aiLoop() {
         //check for groupname.go
         System.out.println("Checking for groupname.go");
-        while (!goFileExists()) {}
+        while (!goFileExists() && !endGameFileExists()) {}
 
         //if groupname.go exists, check for end_game file
         if (endGameFileExists()) {
@@ -83,14 +82,20 @@ public class Agent {
         String opponentMove = "";
         if (currentTurn != playerColor) {
             opponentMove = readOpponentMove(moveFile);
+            System.out.println(opponentMove);
+            applyMove(currentBoard, interpretMoveString(opponentMove), currentTurn);
+            System.out.println(currentBoard.boardToString());
+            updateTurn();
         }
         Cell ourMove = chooseNextMove(opponentMove);
         System.out.println("Our Move: " + moveToString(ourMove));
 
         writeOurMoveToFile(moveFile, moveToString(ourMove));
 
-        applyMove(currentBoard, ourMove, playerColor);
-        while (goFileExists()) {/*wait until our group file gets removed*/}
+        applyMove(currentBoard, ourMove, currentTurn);
+        System.out.println(currentBoard.boardToString());
+        updateTurn();
+        while (goFileExists() && !endGameFileExists()) {/*wait until our group file gets removed*/}
         aiLoop(); //run aiLoop() again
     }
 
@@ -104,16 +109,6 @@ public class Agent {
             return ourMove;
         }
 
-        String[] opponentValueStrings = opponentMove.split(" ");
-        int opponentCol = columnLetters.indexOf(opponentValueStrings[1]);
-        int opponentRow = Integer.parseInt(opponentValueStrings[2]) - 1;
-        Cell opponentCell = new Cell();
-        opponentCell.setCol(opponentCol);
-        opponentCell.setRow(opponentRow);
-        if (playerColor == CellColor.BLUE) opponentCell.setColor(CellColor.ORANGE);
-        else opponentCell.setColor(CellColor.BLUE);
-        this.currentBoard = applyMove(currentBoard, opponentCell, opponentCell.getColor());
-
         ourMove = randomMove();
         //MiniMove ourMove = minimax(currBoard, 3, true, null, -10000, 10000);
 
@@ -126,6 +121,24 @@ public class Agent {
         char colString   = columnLetters.charAt(move.getCol());
         String rowString = String.valueOf(8 - move.getRow());
         return groupName + " " + colString + " " + rowString + "\n";
+    }
+
+    public Cell interpretMoveString(String move) {
+
+        String[] valueStrings = move.split(" ");
+        int col = columnLetters.indexOf(valueStrings[1]);
+        int row = 8 - Integer.parseInt(valueStrings[2]);
+
+        Cell moveCell = new Cell();
+        moveCell.setCol(col);
+        moveCell.setRow(row);
+        moveCell.setColor(currentTurn);
+
+        System.out.println("Their move text is: " + move);
+        System.out.println("Their move internally is col: " + moveCell.getCol() + ", row: " + moveCell.getRow());
+        System.out.println("Their move is translated to: " + moveToString(moveCell));
+
+        return moveCell;
     }
 
     public boolean isEnemyCell(Cell possibleEnemyCell){
@@ -261,6 +274,8 @@ public class Agent {
 
         board.capture(cell);
 
+        board.currentColor = Board.getOppositeColor(color);
+
         return board;
     }
 
@@ -304,15 +319,24 @@ public class Agent {
      */
     private Cell randomMove(){
         Random rand = new Random();
-        int upperbound = 8;
         Cell move = null;
         List <Cell> moves = generateMoves(currentBoard, playerColor);
-        int intRandom = rand.nextInt(upperbound);
+        for (Cell testMove : moves) {
+            System.out.println("Testmove: " + moveToString(testMove));
+        }
+        for (Cell testMove : moves) {
+            System.out.println("Testmove internal: Col: " + testMove.getCol() + ", Row: " + testMove.getRow());
+        }
+        int intRandom = rand.nextInt(moves.size());
 
         move = moves.get(intRandom);
 
         return move;
 
+    }
+
+    private void updateTurn() {
+        currentTurn = Board.getOppositeColor(currentTurn);
     }
 
 }

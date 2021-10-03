@@ -6,10 +6,10 @@ import java.util.List;
 public class Board {
     public Cell[][] board;
     private CellColor playerColor;
-    private CellColor currentColor;
+    public CellColor currentColor;
     private Direction directions = new Direction();
     public int boardMin = 0;
-    public int boardMax = 7;
+    public int boardMax = 8;
 
     /**
      * Constructor for the Board class
@@ -28,10 +28,10 @@ public class Board {
             }
         }
 
-        placePiece(3, 3, CellColor.ORANGE);
-        placePiece(3, 4, CellColor.BLUE);
-        placePiece(4, 4, CellColor.ORANGE);
-        placePiece(4, 3, CellColor.BLUE);
+        placePiece(3, 3, CellColor.BLUE);
+        placePiece(3, 4, CellColor.ORANGE);
+        placePiece(4, 4, CellColor.BLUE);
+        placePiece(4, 3, CellColor.ORANGE);
     }
 
     /**
@@ -84,6 +84,10 @@ public class Board {
 
         Cell currCell = board[currRow][currCol];
 
+        if (!isEnemyCell(currCell)) {
+            return;
+        }
+
         ArrayList<Cell> cellsToChange = new ArrayList<>();
 
         // Keep going until we hit a non-enemy cell
@@ -102,14 +106,14 @@ public class Board {
         // If we find a player cell at the end of the line, capture all the pieces on the way.
         if (isPlayerCell(currCell)) {
             for (Cell c : cellsToChange) {
-                placePiece(c.getRow(), c.getCol(), c.getColor());
+                placePiece(c.getRow(), c.getCol(), currentColor);
             }
         }
     }
 
     private boolean isValidMove(Cell possibleMove) {
 
-        if (captureLineTest(possibleMove, directions.UP) 
+        if (captureLineTest(possibleMove, directions.UP)
         || captureLineTest(possibleMove, directions.DOWN)
         || captureLineTest(possibleMove, directions.LEFT)
         || captureLineTest(possibleMove, directions.RIGHT)
@@ -133,6 +137,10 @@ public class Board {
         }
 
         Cell currCell = board[currRow][currCol];
+
+        if (!isEnemyCell(currCell)) {
+            return false;
+        }
 
         while (isEnemyCell(currCell)) {
             currRow += vector[0];
@@ -193,6 +201,9 @@ public class Board {
                         validMoves.add(currentCell);
                     }
                 }
+                else {
+                    System.out.println();
+                }
             }
         }
 
@@ -206,41 +217,15 @@ public class Board {
      * @return
      */
     public boolean isEnemyCell(Cell possibleEnemyCell) {
-        boolean result = true;
-
-        if(possibleEnemyCell == null){
-            result = false;
-        }
-
-        if (currentColor == possibleEnemyCell.getColor()) {
-            result = false;
-        }
-
-        if(possibleEnemyCell.getColor() == CellColor.EMPTY){
-            result = false;
-        }
-
-        return result;
+        return possibleEnemyCell.getColor() == getOppositeColor(currentColor);
     }
 
     public boolean isEmptyCell(Cell possibleEmptyCell) {
-        boolean result = false;
-
-        if (possibleEmptyCell.getColor() == CellColor.EMPTY) {
-            result = true;
-        }
-
-        return result;
+        return possibleEmptyCell.getColor() == CellColor.EMPTY;
     }
 
     public boolean isPlayerCell(Cell possiblePlayerCell) {
-        boolean result = false;
-
-        if (currentColor == possiblePlayerCell.getColor()) {
-            result = true;
-        }
-
-        return result;
+        return possiblePlayerCell.getColor() == currentColor;
     }
 
     public static CellColor getOppositeColor(CellColor color) {
@@ -253,5 +238,26 @@ public class Board {
         else {
             return CellColor.BLUE;
         }
+    }
+
+    public String boardToString() {
+        String out = "";
+        for (int row = boardMin; row < boardMax; row++) {
+            out += String.valueOf(8 - row) + "  ";
+            for (int col = boardMin; col < boardMax; col++) {
+                Cell currCel = board[row][col];
+                CellColor color = currCel.getColor();
+                if (color == CellColor.BLUE) {
+                    out += "B  ";
+                } else if (color == CellColor.ORANGE) {
+                    out += "O  ";
+                } else {
+                    out += "-  ";
+                }
+            }
+            out += "\n";
+        }
+        out += "   A  B  C  D  E  F  G  H";
+        return out;
     }
 }
