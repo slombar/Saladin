@@ -69,12 +69,10 @@ public class Agent {
             e.printStackTrace();
         }
 
-        System.out.println("We printed the line: " + ourMove + " to the move_file.");
     }
 
     public void aiLoop() {
         //check for groupname.go
-        System.out.println("Checking for groupname.go");
         while (!goFileExists() && !endGameFileExists()) {}
 
         //if groupname.go exists, check for end_game file
@@ -87,13 +85,11 @@ public class Agent {
         String opponentMove = "";
         if (currentTurn != playerColor) {
             opponentMove = readOpponentMove(moveFile);
-            System.out.println("Opponent Move: " + opponentMove);
             applyMove(currentBoard, interpretMoveString(opponentMove), currentTurn);
             System.out.println(currentBoard.boardToString());
             updateTurn();
         }
         Cell ourMove = chooseNextMove(opponentMove);
-        System.out.println("Our Move: " + moveToString(ourMove));
 
         writeOurMoveToFile(moveFile, moveToString(ourMove));
 
@@ -106,18 +102,6 @@ public class Agent {
 
     public Cell chooseNextMove(String opponentMove) {
         Cell ourMove = new Cell();
-
-        /*
-        if(opponentMove == null || opponentMove.isEmpty()){
-            ourMove.setRow(5);
-            ourMove.setCol(4);
-            ourMove.setColor(playerColor);
-
-            return ourMove;
-        }
-        */
-
-        // ourMove = randomMove();
 
         MinimaxAgent minimaxAgent = new MinimaxAgent(currentBoard, currentTurn, MAX_DEPTH, this);
         ourMove = minimaxAgent.getMinimaxMove();
@@ -144,10 +128,6 @@ public class Agent {
         moveCell.setCol(col);
         moveCell.setRow(row);
         moveCell.setColor(currentTurn);
-
-        System.out.println("Their move text is: " + move);
-        System.out.println("Their move internally is col: " + moveCell.getCol() + ", row: " + moveCell.getRow());
-        System.out.println("Their move is translated to: " + moveToString(moveCell));
 
         return moveCell;
     }
@@ -227,15 +207,13 @@ public class Agent {
      * Generates a random move based on the current Board state
      * @return
      */
-    private Cell randomMove(){
+    /*private Cell randomMove(){
         Random rand = new Random();
         Cell move = null;
         List <Cell> moves = currentBoard.findValidMoves();
         for (Cell testMove : moves) {
-            System.out.println("Testmove: " + moveToString(testMove));
         }
         for (Cell testMove : moves) {
-            System.out.println("Testmove internal: Col: " + testMove.getCol() + ", Row: " + testMove.getRow());
         }
 
         if (moves.size() == 0) {
@@ -247,7 +225,7 @@ public class Agent {
 
         return move;
 
-    }
+    }*/
 
     private void updateTurn() {
         currentTurn = Board.getOppositeColor(currentTurn);

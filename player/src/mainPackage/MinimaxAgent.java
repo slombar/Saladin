@@ -79,12 +79,9 @@ public class MinimaxAgent {
             }
         }
 
-        //
-        System.out.println("Possible Moves: ");
-        for (MiniMove moveToPrint : childrenMiniMoves) {
+        /*for (MiniMove moveToPrint : childrenMiniMoves) {
             Board.printMove(moveToPrint.getMove());
-        }
-        //
+        }*/
 
         if (isOurTurn) {
             MiniMove bestMove = new MiniMove();

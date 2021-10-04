@@ -268,6 +268,7 @@ public class Board {
     }
 
     public static void printMove(Cell move) {
+
         System.out.println(boardMoveToString(move));
     }
 
