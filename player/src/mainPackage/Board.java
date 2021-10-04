@@ -5,9 +5,9 @@ import java.util.List;
 
 public class Board {
     public Cell[][] board;
-    private CellColor playerColor;
+    private final CellColor playerColor;
     public CellColor currentColor;
-    private Direction directions = new Direction();
+    private final Direction directions = new Direction();
     public int boardMin = 0;
     public int boardMax = 8;
 
@@ -49,12 +49,7 @@ public class Board {
      * Checks if coordinates are out of bounds
      */
     public boolean outOfBounds(int row, int col) {
-        if (row < 0 || row > 7 || col < 0 || col > 7) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return row < 0 || row > 7 || col < 0 || col > 7;
     }
 
     /**
@@ -112,20 +107,14 @@ public class Board {
     }
 
     private boolean isValidMove(Cell possibleMove) {
-
-        if (captureLineTest(possibleMove, directions.UP)
-        || captureLineTest(possibleMove, directions.DOWN)
-        || captureLineTest(possibleMove, directions.LEFT)
-        || captureLineTest(possibleMove, directions.RIGHT)
-        || captureLineTest(possibleMove, directions.UP_LEFT)
-        || captureLineTest(possibleMove, directions.UP_RIGHT)
-        || captureLineTest(possibleMove, directions.DOWN_LEFT)
-        || captureLineTest(possibleMove, directions.DOWN_RIGHT)) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return captureLineTest(possibleMove, directions.UP)
+                || captureLineTest(possibleMove, directions.DOWN)
+                || captureLineTest(possibleMove, directions.LEFT)
+                || captureLineTest(possibleMove, directions.RIGHT)
+                || captureLineTest(possibleMove, directions.UP_LEFT)
+                || captureLineTest(possibleMove, directions.UP_RIGHT)
+                || captureLineTest(possibleMove, directions.DOWN_LEFT)
+                || captureLineTest(possibleMove, directions.DOWN_RIGHT);
     }
 
     private boolean captureLineTest(Cell capturingCell, int[] vector) {
@@ -152,12 +141,7 @@ public class Board {
             currCell = board[currRow][currCol];
         }
 
-        if (isPlayerCell(currCell)) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return isPlayerCell(currCell);
     }
 
     /**
@@ -228,17 +212,14 @@ public class Board {
     }
 
     public boolean isPotentialFutureMove(Cell possibleFutureMove) {
-        if (isNextToEmptySpace(possibleFutureMove, directions.UP)
-        || isNextToEmptySpace(possibleFutureMove, directions.DOWN)
-        || isNextToEmptySpace(possibleFutureMove, directions.LEFT)
-        || isNextToEmptySpace(possibleFutureMove, directions.RIGHT)
-        || isNextToEmptySpace(possibleFutureMove, directions.UP_LEFT)
-        || isNextToEmptySpace(possibleFutureMove, directions.UP_RIGHT)
-        || isNextToEmptySpace(possibleFutureMove, directions.DOWN_LEFT)
-        || isNextToEmptySpace(possibleFutureMove, directions.DOWN_RIGHT)) {
-            return true;
-        }
-        return false;
+        return isNextToEmptySpace(possibleFutureMove, directions.UP)
+                || isNextToEmptySpace(possibleFutureMove, directions.DOWN)
+                || isNextToEmptySpace(possibleFutureMove, directions.LEFT)
+                || isNextToEmptySpace(possibleFutureMove, directions.RIGHT)
+                || isNextToEmptySpace(possibleFutureMove, directions.UP_LEFT)
+                || isNextToEmptySpace(possibleFutureMove, directions.UP_RIGHT)
+                || isNextToEmptySpace(possibleFutureMove, directions.DOWN_LEFT)
+                || isNextToEmptySpace(possibleFutureMove, directions.DOWN_RIGHT);
     }
 
     public boolean isNextToEmptySpace(Cell enemyCell, int[] vector) {
@@ -284,47 +265,32 @@ public class Board {
     }
 
     public String boardToString() {
-        String out = "";
+        StringBuilder out = new StringBuilder();
         for (int row = boardMin; row < boardMax; row++) {
-            out += String.valueOf(8 - row) + "  ";
+            out.append(8 - row).append("  ");
             for (int col = boardMin; col < boardMax; col++) {
                 Cell currCel = board[row][col];
                 CellColor color = currCel.getColor();
                 if (color == CellColor.BLUE) {
-                    out += "B  ";
+                    out.append("B  ");
                 } else if (color == CellColor.ORANGE) {
-                    out += "O  ";
+                    out.append("O  ");
                 } else {
-                    out += "-  ";
+                    out.append("-  ");
                 }
             }
-            out += "\n";
+            out.append("\n");
         }
-        out += "   A  B  C  D  E  F  G  H";
-        return out;
+        out.append("   A  B  C  D  E  F  G  H");
+        return out.toString();
     }
 
     public Board deepCopy() {
         Board copyBoard = new Board(this.playerColor, this.currentColor);
         for (int row = boardMin; row < boardMax; row++) {
-            for (int col = boardMin; col < boardMax; col++) {
-                copyBoard.board[row][col] = board[row][col];
-            }
+            if (boardMax - boardMin >= 0)
+                System.arraycopy(board[row], boardMin, copyBoard.board[row], boardMin, boardMax - boardMin);
         }
         return copyBoard;
-    }
-
-    public static void printMove(Cell move) {
-
-        System.out.println(boardMoveToString(move));
-    }
-
-    private static String boardMoveToString(Cell move) {
-        if (move.getCol() == 10) {
-            return "P 1\n";
-        }
-        char colString   = "ABCDEFGH".charAt(move.getCol());
-        String rowString = String.valueOf(8 - move.getRow());
-        return colString + " " + rowString + "\n";
     }
 }

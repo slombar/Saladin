@@ -8,12 +8,11 @@ public class MinimaxAgent {
     CellColor startingTurn;
     boolean isOurTurn = true;
     int maxDepth;
+
     double POSITIVE_INFINITY = 10000000;
     double NEGATIVE_INFINITY = -10000000;
-
-    double DISKS_ONLY_EVAL_WEIGHT = 1 / 100.0;
-    double NUM_MOVES_EVAL_WEIGHT = 1.0;
-    double NUM_POTENTIAL_MOVES_WEIGHT = 1.0;
+    static double DISKS_ONLY_EVAL_WEIGHT = 1 / 100.0;
+    static double NUM_MOVES_EVAL_WEIGHT = 1.0;
 
     long timeLimitMillis;
     long adjustedTimeLimit;
@@ -63,8 +62,6 @@ public class MinimaxAgent {
             if (enemyMoves.isEmpty()) {
                 return copyCurrentMove(currentBoardState, currentMove);
             }
-            // Only pass is available
-            System.out.println("Can only PASS");
             childrenMoves.add(passMove);
         }
 
@@ -93,10 +90,6 @@ public class MinimaxAgent {
                 }
             }
         }
-
-        /*for (MiniMove moveToPrint : childrenMiniMoves) {
-            Board.printMove(moveToPrint.getMove());
-        }*/
 
         if (isOurTurn) {
             MiniMove bestMove = new MiniMove();
@@ -128,15 +121,14 @@ public class MinimaxAgent {
         return move;
     }
 
-    private double evaluateBoardState(Board currentBoardState) {
+    public static double evaluateBoardState(Board currentBoardState) {
         double sum = 0;
         sum += (evaluateBoardStateDisksOnly(currentBoardState) * DISKS_ONLY_EVAL_WEIGHT);
         sum += (evaluateBoardNumMoves(currentBoardState) * NUM_MOVES_EVAL_WEIGHT);
-        sum += (evaluateBoardPotentialFutureMoves(currentBoardState) * NUM_POTENTIAL_MOVES_WEIGHT);
         return sum;
     }
 
-    private int evaluateBoardStateDisksOnly(Board currentBoardState) {
+    private static int evaluateBoardStateDisksOnly(Board currentBoardState) {
         int sum = 0;
         for (int row = currentBoardState.boardMin; row < currentBoardState.boardMax; row++) {
             for (int col = currentBoardState.boardMin; col < currentBoardState.boardMax; col++) {
@@ -156,11 +148,7 @@ public class MinimaxAgent {
         return sum;
     }
 
-    private int evaluateBoardNumMoves(Board currentBoardState) {
+    private static int evaluateBoardNumMoves(Board currentBoardState) {
         return currentBoardState.findValidMoves().size();
-    }
-
-    private int evaluateBoardPotentialFutureMoves(Board currentBoardState) {
-        return currentBoardState.findNumPotentialFutureMoves();
     }
 }
