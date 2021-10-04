@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="Saladin:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Saladin_jar</output-path>
+    <root id="archive" name="Saladin.jar">
+      <element id="module-output" name="Saladin" />
+      <element id="library" level="application" name="Python 3.9 interpreter library" />
+    </root>
+  </artifact>
+</component>
