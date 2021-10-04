@@ -17,4 +17,4 @@ Usage:
 Run the referee program:
 python Referee.py <GROUP 1> <GROUP 2>
 
-Run Saladin.java: java Main.java <GROUP 1>
+Run Saladin: java Main.java <GROUP 1>
