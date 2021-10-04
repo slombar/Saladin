@@ -1,8 +1,8 @@
 package mainPackage;
 
 public class MiniMove {
-    double value = 0;
-    Cell move = null;
+    double value;
+    Cell move;
 
     public MiniMove() {
         this.value = 0;

@@ -3,24 +3,19 @@ package mainPackage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
-import java.util.Random;
 import java.util.Scanner;
 
 public class Agent {
 
     public String COLUMN_LETTERS = "ABCDEFGH  P";
-
     public int PASS_INDEX = 10;
+    private final int MAX_DEPTH = 6;
+    private final long TIME_LIMIT = 10; // seconds
 
-    private String groupName;
+    private final String groupName;
     public CellColor playerColor;
-    private Board currentBoard;
+    private final Board currentBoard;
     private CellColor currentTurn;
-
-    private int MAX_DEPTH = 4;
-    private long TIME_LIMIT = 10; // seconds
-
 
     public int turnCounter = 1;
 
@@ -53,7 +48,6 @@ public class Agent {
         try {
             Scanner moveScanner = new Scanner(moveFile);
             opponentMove = moveScanner.nextLine();
-            System.out.println("Opponent's Move: " + opponentMove);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -70,28 +64,50 @@ public class Agent {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println("Our move: " + ourMove);
 
+    }
+
+    private void printEndGameFileMessage() {
+        File endFile = new File("referee/end_game");
+
+        String endGameMessage = null;
+
+        try {
+            Scanner endScanner = new Scanner(endFile);
+            endGameMessage = endScanner.nextLine();
+            System.out.println(endGameMessage);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assert endGameMessage != null;
+        if (endGameMessage.indexOf("Invalid move!") > 0) {
+            File moveFile = new File("referee/move_file");
+            System.out.println("Invalid move: " + readOpponentMove(moveFile));
+        }
     }
 
     public void aiLoop() {
         //check for groupname.go
         while (!goFileExists() && !endGameFileExists()) {}
 
-        //if groupname.go exists, check for end_game file
+        //check for end_game file
         if (endGameFileExists()) {
+            printEndGameFileMessage();
             return;
         }
 
         //if no end_game file exists, check for the move_file
         File moveFile = new File("referee/move_file");
-        String opponentMove = "";
+        String opponentMove;
         if (currentTurn != playerColor) {
             opponentMove = readOpponentMove(moveFile);
             applyMove(currentBoard, interpretMoveString(opponentMove), currentTurn);
             System.out.println(currentBoard.boardToString());
             updateTurn();
         }
-        Cell ourMove = chooseNextMove(opponentMove);
+
+        Cell ourMove = chooseNextMove();
 
         writeOurMoveToFile(moveFile, moveToString(ourMove));
 
@@ -102,8 +118,8 @@ public class Agent {
         aiLoop(); //run aiLoop() again
     }
 
-    public Cell chooseNextMove(String opponentMove) {
-        Cell ourMove = new Cell();
+    public Cell chooseNextMove() {
+        Cell ourMove;
 
         MinimaxAgent minimaxAgent = new MinimaxAgent(currentBoard, currentTurn, MAX_DEPTH, this, TIME_LIMIT*1000);
         ourMove = minimaxAgent.getMinimaxMove();
@@ -132,36 +148,6 @@ public class Agent {
         moveCell.setColor(currentTurn);
 
         return moveCell;
-    }
-
-    public boolean isEnemyCell(Cell possibleEnemyCell){
-        boolean result = true;
-
-        if(playerColor == possibleEnemyCell.getColor()){
-            result = false;
-        }
-
-        return result;
-    }
-
-    /**
-     * Evaluation function for minmax
-     * @return
-     */
-    public int evalFunction(Board b){
-        return 0;
-    }
-
-    public boolean isPlayerCell(Cell possiblePlayerCell){
-        return playerColor == possiblePlayerCell.getColor();
-    }
-
-    private boolean better(int chosenScore, int bestScore) {
-        if(chosenScore > bestScore){
-            return true;
-        }else{
-            return false;
-        }
     }
 
     public Board applyMove(Board board, Cell cell, CellColor color) {
