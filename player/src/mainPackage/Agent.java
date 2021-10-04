@@ -18,7 +18,9 @@ public class Agent {
     private Board currentBoard;
     private CellColor currentTurn;
 
-    private int MAX_DEPTH = 6;
+    private int MAX_DEPTH = 4;
+    private long TIME_LIMIT = 10; // seconds
+
 
     public int turnCounter = 1;
 
@@ -103,7 +105,7 @@ public class Agent {
     public Cell chooseNextMove(String opponentMove) {
         Cell ourMove = new Cell();
 
-        MinimaxAgent minimaxAgent = new MinimaxAgent(currentBoard, currentTurn, MAX_DEPTH, this);
+        MinimaxAgent minimaxAgent = new MinimaxAgent(currentBoard, currentTurn, MAX_DEPTH, this, TIME_LIMIT*1000);
         ourMove = minimaxAgent.getMinimaxMove();
 
         return ourMove;
@@ -178,54 +180,6 @@ public class Agent {
 
         return board;
     }
-
-    /**
-     * Given a board state, evaluate the board.
-     * @param currBoard
-     * @return
-     */
-    private int evaluation(Board currBoard) {
-        int sum = 0;
-        for (int row = currBoard.boardMin; row < currBoard.boardMax; row++) {
-            for (int col = currBoard.boardMin; col < currBoard.boardMax; col++) {
-
-                //determine the current Cell
-                Cell currentCell = currBoard.board[row][col];
-                if (currBoard.isPlayerCell(currentCell)) {
-                    sum++;
-                }
-                else if (currBoard.isEnemyCell(currentCell)) {
-                    sum--;
-                }
-
-            }
-        }
-        return sum;
-    }
-
-    /**
-     * Generates a random move based on the current Board state
-     * @return
-     */
-    /*private Cell randomMove(){
-        Random rand = new Random();
-        Cell move = null;
-        List <Cell> moves = currentBoard.findValidMoves();
-        for (Cell testMove : moves) {
-        }
-        for (Cell testMove : moves) {
-        }
-
-        if (moves.size() == 0) {
-            return null;
-        }
-        int intRandom = rand.nextInt(moves.size());
-
-        move = moves.get(intRandom);
-
-        return move;
-
-    }*/
 
     private void updateTurn() {
         currentTurn = Board.getOppositeColor(currentTurn);

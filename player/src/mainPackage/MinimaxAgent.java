@@ -8,28 +8,43 @@ public class MinimaxAgent {
     CellColor startingTurn;
     boolean isOurTurn = true;
     int maxDepth;
-    int POSITIVE_INFINITY = 10000000;
-    int NEGATIVE_INFINITY = -10000000;
+    double POSITIVE_INFINITY = 10000000;
+    double NEGATIVE_INFINITY = -10000000;
+
+    double DISKS_ONLY_EVAL_WEIGHT = 1 / 100.0;
+    double NUM_MOVES_EVAL_WEIGHT = 1.0;
+    double NUM_POTENTIAL_MOVES_WEIGHT = 1.0;
+
+    long timeLimitMillis;
+    long adjustedTimeLimit;
+    long timerStart;
 
     Agent agent;
 
-    public MinimaxAgent(Board startingBoardState, CellColor startingTurn, int maxDepth, Agent agent) {
+    public MinimaxAgent(Board startingBoardState, CellColor startingTurn, int maxDepth, Agent agent, long timeLimitMillis) {
         this.startingBoardState = startingBoardState;
         this.startingTurn = startingTurn;
         this.maxDepth = maxDepth;
         this.agent = agent;
-
+        this.timeLimitMillis = timeLimitMillis;
+        this.adjustedTimeLimit = timeLimitMillis - (timeLimitMillis / 4);
     }
 
     public Cell getMinimaxMove() {
+        timerStart = System.currentTimeMillis();
         return minimax(startingBoardState, new Cell(), startingTurn, isOurTurn, maxDepth, NEGATIVE_INFINITY, POSITIVE_INFINITY)
                 .getMove();
     }
 
     private MiniMove minimax(Board currentBoardState, Cell currentMove, CellColor currentTurn, boolean isOurTurn,
-                             int currentDepth, int alpha, int beta) {
+                             int currentDepth, double alpha, double beta) {
         List<Cell> childrenMoves;
         List<MiniMove> childrenMiniMoves = new ArrayList<>();
+
+        long timeDiff = System.currentTimeMillis() - timerStart;
+        if (timeDiff > adjustedTimeLimit) {
+            return copyCurrentMove(currentBoardState, currentMove);
+        }
 
         // If at end of depth, end recursion
         if (currentDepth == 0) {
@@ -113,7 +128,15 @@ public class MinimaxAgent {
         return move;
     }
 
-    private int evaluateBoardState(Board currentBoardState) {
+    private double evaluateBoardState(Board currentBoardState) {
+        double sum = 0;
+        sum += (evaluateBoardStateDisksOnly(currentBoardState) * DISKS_ONLY_EVAL_WEIGHT);
+        sum += (evaluateBoardNumMoves(currentBoardState) * NUM_MOVES_EVAL_WEIGHT);
+        sum += (evaluateBoardPotentialFutureMoves(currentBoardState) * NUM_POTENTIAL_MOVES_WEIGHT);
+        return sum;
+    }
+
+    private int evaluateBoardStateDisksOnly(Board currentBoardState) {
         int sum = 0;
         for (int row = currentBoardState.boardMin; row < currentBoardState.boardMax; row++) {
             for (int col = currentBoardState.boardMin; col < currentBoardState.boardMax; col++) {
@@ -130,8 +153,14 @@ public class MinimaxAgent {
             }
         }
 
-        // TODO improve eval function
-
         return sum;
+    }
+
+    private int evaluateBoardNumMoves(Board currentBoardState) {
+        return currentBoardState.findValidMoves().size();
+    }
+
+    private int evaluateBoardPotentialFutureMoves(Board currentBoardState) {
+        return currentBoardState.findNumPotentialFutureMoves();
     }
 }

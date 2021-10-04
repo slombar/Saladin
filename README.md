@@ -1,4 +1,4 @@
-####Authors: Sadie Lombardi <slombardi@wpi.edu>, Alan Healy <?>, Billy Cross <?>
+####Authors: Sadie Lombardi <slombardi@wpi.edu>, Alan Healy <ajhealy@wpi.edu>, Billy Cross <wmcross@wpi.edu>
 Date: October 4th 2021, 10/4/21
 
 ###Description:
@@ -7,7 +7,7 @@ This program serves as a player for Othello, a popular board game that involves 
 Saladin uses minimax and alpha beta pruning to determine the next move it makes based on the current board. 
 It interacts with the Referee.py program by reading the move_file and Saladin.go file. The Saladin.go file indicates
 that it is our player's turn, and it starts searching for moves as soon as it sees that file in the directory.
-Our evaluation of the moves is based off of the current number of our/enemy moves on the board, and how many valid moves are available
+Our evaluation of the moves is based off of the current number of our/enemy pieces on the board, and how many valid moves are available
 at the next board state, given any valid move.
 
 ###Prerequisites:
