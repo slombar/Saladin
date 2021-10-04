@@ -1,5 +1,8 @@
 package mainPackage;
 
+/**
+ * Stores a specific cell on the board, including its color, row, and column.
+ */
 public class Cell {
     private CellColor color;
     private int row;
@@ -17,34 +20,17 @@ public class Cell {
         this.color = cellColor;
     }
 
+    /**
+     * Default constructor for creating a Cell.
+     */
     Cell(){
         this.col = 0;
         this.row = 0;
         this.color = CellColor.ORANGE;
     }
-    /**
-     * returns the opposite color of the given Cell
-     * @return blue if given Cell is orange, orange if given Cell is blue, and empty if Cell is empty
-     */
-    public CellColor getOppositeColor(){
-
-        //check for empty, if not proceed
-        if(getColor() != CellColor.EMPTY) {
-
-            //retrieve opposite color
-            if (getColor() == CellColor.BLUE) {
-                return CellColor.ORANGE;
-            } else {
-                return CellColor.BLUE;
-            }
-        }
-        //default, return empty
-        return CellColor.EMPTY;
-    }
 
     /**
      * get a Cell's color
-     * @return
      */
     public CellColor getColor() {
         return color;
@@ -52,7 +38,6 @@ public class Cell {
 
     /**
      * set a Cell's color
-     * @param color
      */
     public void setColor(CellColor color) {
         this.color = color;
@@ -60,7 +45,6 @@ public class Cell {
 
     /**
      * get the row of a Cell
-     * @return
      */
     public int getRow() {
         return row;
@@ -68,7 +52,6 @@ public class Cell {
 
     /**
      * set the row of a Cell
-     * @param row
      */
     public void setRow(int row) {
         this.row = row;
@@ -76,7 +59,6 @@ public class Cell {
 
     /**
      * get the column of a Cell
-     * @return
      */
     public int getCol() {
         return col;
@@ -84,7 +66,6 @@ public class Cell {
 
     /**
      * set the column of a color
-     * @param col
      */
     public void setCol(int col) {
         this.col = col;

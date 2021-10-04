@@ -207,6 +207,53 @@ public class Board {
         return validMoves;
     }
 
+    public int findNumPotentialFutureMoves() {
+        int result = 0;
+
+        //determine legal moves by using adjacent cells
+        for (int row = boardMin; row < boardMax; row++) {
+            for (int col = boardMin; col < boardMax; col++) {
+
+                //determine the current Cell
+                Cell currentCell = board[row][col];
+
+                if (isEnemyCell(currentCell)) {
+                    if (isPotentialFutureMove(currentCell)) {
+                        result++;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    public boolean isPotentialFutureMove(Cell possibleFutureMove) {
+        if (isNextToEmptySpace(possibleFutureMove, directions.UP)
+        || isNextToEmptySpace(possibleFutureMove, directions.DOWN)
+        || isNextToEmptySpace(possibleFutureMove, directions.LEFT)
+        || isNextToEmptySpace(possibleFutureMove, directions.RIGHT)
+        || isNextToEmptySpace(possibleFutureMove, directions.UP_LEFT)
+        || isNextToEmptySpace(possibleFutureMove, directions.UP_RIGHT)
+        || isNextToEmptySpace(possibleFutureMove, directions.DOWN_LEFT)
+        || isNextToEmptySpace(possibleFutureMove, directions.DOWN_RIGHT)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isNextToEmptySpace(Cell enemyCell, int[] vector) {
+        int currRow = enemyCell.getRow() + vector[0];
+        int currCol = enemyCell.getCol() + vector[1];
+
+        if (outOfBounds(currRow, currCol)) {
+            return false;
+        }
+
+        Cell currCell = board[currRow][currCol];
+
+        return isEmptyCell(currCell);
+    }
+
     /**
      * check to see if the given Cell and one of its adjacent cells
      *

@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
+/**
+ * Waits for the correct .go file from the referee, then initializes the agent depending on the turn order.
+ */
 public class Main {
     public static void main(String[] args) {
         System.out.println("Got group name: " + args[0]);

@@ -1,7 +1,7 @@
 package mainPackage;
 
 public class MiniMove {
-    int value = 0;
+    double value = 0;
     Cell move = null;
 
     public MiniMove() {
@@ -9,11 +9,11 @@ public class MiniMove {
         this.move = new Cell();
     }
 
-    public int getValue() {
+    public double getValue() {
         return value;
     }
 
-    public void setValue(int value) {
+    public void setValue(double value) {
         this.value = value;
     }
 
