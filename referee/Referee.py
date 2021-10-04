@@ -18,6 +18,7 @@ from os import listdir
 from os.path import isfile, join
 
 from Game import Game, EndCondition
+from Util import TerminalColor
 
 
 def clean():
@@ -48,7 +49,16 @@ def main():
     parser = argparse.ArgumentParser(description="Referee a game of Othello between two programs")
     parser.add_argument("player_one", type=str, help="Group name of player one")
     parser.add_argument("player_two", type=str, help="Group name of player two")
+    parser.add_argument("--no_color", default=False, action='store_true')
     args = parser.parse_args(sys.argv[1:])
+
+    # Wipe out coloring if flag is on
+    if args.no_color:
+        TerminalColor.RED = ""
+        TerminalColor.NRM = ""
+        TerminalColor.BLUE = ""
+        TerminalColor.YELLOW = ""
+        TerminalColor.GREEN = ""
 
     # Select order randomly
     p1 = args.player_one
@@ -65,13 +75,13 @@ def main():
     # Create game
     game = Game(p1, p2)
 
-    # Display initial Board
+    # Display initial board
     print("Initial Board:\n{b}\n".format(b=game.board))
 
     # Create empty move_file
     open("move_file", "w").close()
 
-    # Play game until the Board is full or there are no more legal moves
+    # Play game until the board is full or there are no more legal moves
     while not game.board.is_full() and (game.has_legal_move(game.player_one) or game.has_legal_move(game.player_two)):
         player = game.get_next_player()
 
@@ -133,7 +143,7 @@ def main():
     if not game.game_over:
         game.end(EndCondition.VALID)
 
-    # Print final state of Board
+    # Print final state of board
     print("Final Board:\n{b}".format(b=game.board))
 
 

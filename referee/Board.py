@@ -14,7 +14,7 @@ from Util import TerminalColor
 
 class Direction(Enum):
     """
-    Enum of possible directions on an Othello Board
+    Enum of possible directions on an Othello board
     """
     UP = (-1, 0)
     UP_LEFT = (-1, -1)
@@ -28,11 +28,11 @@ class Direction(Enum):
 
 class PieceColor(Enum):
     """
-    Enum of possible piece colors, or none for an empty spot, on an Othello Board
+    Enum of possible piece colors, or none for an empty spot, on an Othello board
     """
     NONE = "*"
-    BLUE = TerminalColor.BLUE.value + "B" + TerminalColor.NRM.value
-    ORANGE = TerminalColor.YELLOW.value + "O" + TerminalColor.NRM.value
+    BLUE = "B"
+    ORANGE = "O"
 
 
 def interpret_coords(row: int, col: str) -> (int, int):
@@ -60,7 +60,7 @@ def out_of_bounds(row: int, col: int) -> bool:
     Check if coordinates are out of bounds
     :param row: Integer row coordinate
     :param col: Integer column coordinate
-    :return: True if out of bounds, false if on Board
+    :return: True if out of bounds, false if on board
     """
     if (row < 0) or (row > 7) or (col < 0) or (col > 7):
         return True
@@ -70,35 +70,35 @@ def out_of_bounds(row: int, col: int) -> bool:
 
 class Board:
     """
-    Class representing an Othello Board
+    Class representing an Othello board
     """
-    board = [PieceColor.NONE] * 64
 
     def __init__(self):
         """
-        Initialize Othello Board
+        Initialize Othello board
         """
-        # Setup initial Board state
-        self.set_piece(5, 'D', PieceColor.BLUE)
-        self.set_piece(5, 'E', PieceColor.ORANGE)
-        self.set_piece(4, 'D', PieceColor.ORANGE)
-        self.set_piece(4, 'E', PieceColor.BLUE)
+        # Setup initial board state
+        self.board = [PieceColor.NONE] * 64
+        self.set_piece(5, 'D', PieceColor.ORANGE)
+        self.set_piece(5, 'E', PieceColor.BLUE)
+        self.set_piece(4, 'D', PieceColor.BLUE)
+        self.set_piece(4, 'E', PieceColor.ORANGE)
 
     def _get_piece(self, row: int, col: int) -> PieceColor:
         """
-        Get piece at given coordinates on Othello Board
+        Get piece at given coordinates on Othello board
         :param row: Row in the form 0-7
         :param col: Column in the form 0-7
-        :return: PieceColor at (row, col) on Board
+        :return: PieceColor at (row, col) on board
         """
         return self.board[row * 8 + col]
 
     def get_piece(self, row: int, col: str) -> PieceColor:
         """
-        Get piece at given coordinates on Othello Board
+        Get piece at given coordinates on Othello board
         :param row: Row in the form 1-8
         :param col: Column in the form A-H
-        :return: PieceColor at (row, col) on Board
+        :return: PieceColor at (row, col) on board
         """
         # Convert coordinates to internal form
         coords = interpret_coords(row, col)
@@ -165,7 +165,7 @@ class Board:
         if self.board[row * 8 + col] != PieceColor.NONE:
             return False
 
-        # Make change to Board
+        # Make change to board
         self.board[row * 8 + col] = color
 
         # Check for envelopment
@@ -194,14 +194,14 @@ class Board:
 
     def is_full(self) -> bool:
         """
-        Check if the Board is completely full
-        :return: True if the Board is completely full, otherwise False
+        Check if the board is completely full
+        :return: True if the board is completely full, otherwise False
         """
         return self.board.count(PieceColor.NONE) == 0
 
     def get_counts(self) -> {}:
         """
-        Get the counts of each PieceColor currently on the Board
+        Get the counts of each PieceColor currently on the board
         :return: Dict of {PieceColor: Count, ...}
         """
 
@@ -209,7 +209,7 @@ class Board:
         blue = 0
         orange = 0
 
-        # Count pieces of each color on Board
+        # Count pieces of each color on board
         for color in self.board:
             if color == PieceColor.BLUE:
                 blue += 1
@@ -233,15 +233,17 @@ class Board:
 
     def __str__(self) -> str:
         """
-        Convert this Board to a pretty-printed string!
-        :return: Pretty-printed string displaying Board
+        Convert this board to a pretty-printed string!
+        :return: Pretty-printed string displaying board
         """
         out = ""
         for i in range(8):
             out += str(8 - i) + "  "
             for j in range(8):
                 color = self._get_piece(i, j)
+                out += (TerminalColor.BLUE if color == PieceColor.BLUE else TerminalColor.YELLOW if color == PieceColor.ORANGE else TerminalColor.NRM)
                 out += color.value
+                out += TerminalColor.NRM
                 out += "  "
             out += "\n"
         out += "   A  B  C  D  E  F  G  H"

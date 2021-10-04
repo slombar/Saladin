@@ -4,5 +4,4 @@ public enum CellColor {
     EMPTY,
     BLUE,
     ORANGE;
-
 }

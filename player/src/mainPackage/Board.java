@@ -6,22 +6,32 @@ import java.util.List;
 public class Board {
     public Cell[][] board;
     private CellColor playerColor;
-    private CellColor currentColor; //TODO currentColor vs. playerColor
+    public CellColor currentColor;
     private Direction directions = new Direction();
     public int boardMin = 0;
-    public int boardMax = 7;
+    public int boardMax = 8;
 
     /**
      * Constructor for the Board class
-     * creates a blank Board of 8x8
+     * creates a blank Board of 8x8, then fills in starting config.
      *
      * @param pc, the color of our Agent
      */
-    public Board(CellColor pc) {
-
-        // TODO do we need to store multiple boards to handle minimax depth?
+    public Board(CellColor pc, CellColor currentTurn) {
         playerColor = pc;
+        currentColor = currentTurn;
         board = new Cell[8][8];
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                placePiece(i, j, CellColor.EMPTY);
+            }
+        }
+
+        placePiece(3, 3, CellColor.ORANGE);
+        placePiece(3, 4, CellColor.BLUE);
+        placePiece(4, 4, CellColor.ORANGE);
+        placePiece(4, 3, CellColor.BLUE);
     }
 
     /**
@@ -74,6 +84,10 @@ public class Board {
 
         Cell currCell = board[currRow][currCol];
 
+        if (!isEnemyCell(currCell)) {
+            return;
+        }
+
         ArrayList<Cell> cellsToChange = new ArrayList<>();
 
         // Keep going until we hit a non-enemy cell
@@ -92,14 +106,14 @@ public class Board {
         // If we find a player cell at the end of the line, capture all the pieces on the way.
         if (isPlayerCell(currCell)) {
             for (Cell c : cellsToChange) {
-                placePiece(c.getRow(), c.getCol(), c.getColor());
+                placePiece(c.getRow(), c.getCol(), currentColor);
             }
         }
     }
 
     private boolean isValidMove(Cell possibleMove) {
 
-        if (captureLineTest(possibleMove, directions.UP) 
+        if (captureLineTest(possibleMove, directions.UP)
         || captureLineTest(possibleMove, directions.DOWN)
         || captureLineTest(possibleMove, directions.LEFT)
         || captureLineTest(possibleMove, directions.RIGHT)
@@ -123,6 +137,10 @@ public class Board {
         }
 
         Cell currCell = board[currRow][currCol];
+
+        if (!isEnemyCell(currCell)) {
+            return false;
+        }
 
         while (isEnemyCell(currCell)) {
             currRow += vector[0];
@@ -168,7 +186,7 @@ public class Board {
      *
      * @return a list of valid moves in the form of cells
      */
-    public List<Cell> findValidMoves(CellColor currColor) {
+    public List<Cell> findValidMoves() {
         List<Cell> validMoves = new ArrayList<>();
 
         //determine legal moves by using adjacent cells
@@ -193,43 +211,72 @@ public class Board {
      * check to see if the given Cell and one of its adjacent cells
      *
      * @param possibleEnemyCell, the Cell to check if enemy
-     * @return
      */
     public boolean isEnemyCell(Cell possibleEnemyCell) {
-        boolean result = true;
-
-        if(possibleEnemyCell == null){
-            result = false;
-        }
-
-        if (currentColor == possibleEnemyCell.getColor()) {
-            result = false;
-        }
-
-        if(possibleEnemyCell.getColor() == CellColor.EMPTY){
-            result = false;
-        }
-
-        return result;
+        return possibleEnemyCell.getColor() == getOppositeColor(currentColor);
     }
 
     public boolean isEmptyCell(Cell possibleEmptyCell) {
-        boolean result = false;
-
-        if (possibleEmptyCell.getColor() == CellColor.EMPTY) {
-            result = true;
-        }
-
-        return result;
+        return possibleEmptyCell.getColor() == CellColor.EMPTY;
     }
 
     public boolean isPlayerCell(Cell possiblePlayerCell) {
-        boolean result = false;
+        return possiblePlayerCell.getColor() == currentColor;
+    }
 
-        if (currentColor == possiblePlayerCell.getColor()) {
-            result = true;
+    public static CellColor getOppositeColor(CellColor color) {
+        if (color == CellColor.EMPTY) {
+            return CellColor.EMPTY;
         }
+        else if (color == CellColor.BLUE) {
+            return CellColor.ORANGE;
+        }
+        else {
+            return CellColor.BLUE;
+        }
+    }
 
-        return result;
+    public String boardToString() {
+        String out = "";
+        for (int row = boardMin; row < boardMax; row++) {
+            out += String.valueOf(8 - row) + "  ";
+            for (int col = boardMin; col < boardMax; col++) {
+                Cell currCel = board[row][col];
+                CellColor color = currCel.getColor();
+                if (color == CellColor.BLUE) {
+                    out += "B  ";
+                } else if (color == CellColor.ORANGE) {
+                    out += "O  ";
+                } else {
+                    out += "-  ";
+                }
+            }
+            out += "\n";
+        }
+        out += "   A  B  C  D  E  F  G  H";
+        return out;
+    }
+
+    public Board deepCopy() {
+        Board copyBoard = new Board(this.playerColor, this.currentColor);
+        for (int row = boardMin; row < boardMax; row++) {
+            for (int col = boardMin; col < boardMax; col++) {
+                copyBoard.board[row][col] = board[row][col];
+            }
+        }
+        return copyBoard;
+    }
+
+    public static void printMove(Cell move) {
+        System.out.println(boardMoveToString(move));
+    }
+
+    private static String boardMoveToString(Cell move) {
+        if (move.getCol() == 10) {
+            return "P 1\n";
+        }
+        char colString   = "ABCDEFGH".charAt(move.getCol());
+        String rowString = String.valueOf(8 - move.getRow());
+        return colString + " " + rowString + "\n";
     }
 }
