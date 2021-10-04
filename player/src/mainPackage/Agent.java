@@ -9,7 +9,7 @@ public class Agent {
 
     public String COLUMN_LETTERS = "ABCDEFGH  P";
     public int PASS_INDEX = 10;
-    private final int MAX_DEPTH = 3;
+    private final int MAX_DEPTH = 6;
     private final long TIME_LIMIT = 10; // seconds
 
     private final String groupName;
