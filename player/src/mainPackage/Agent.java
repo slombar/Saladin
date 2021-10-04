@@ -3,23 +3,24 @@ package mainPackage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
 public class Agent {
 
-    private String columnLetters = "ABCDEFGH  P";
+    public String COLUMN_LETTERS = "ABCDEFGH  P";
 
-    private int passIndex = 10;
+    public int PASS_INDEX = 10;
 
     private String groupName;
     public CellColor playerColor;
     private Board currentBoard;
     private CellColor currentTurn;
 
-    private int MAX_DEPTH = 3;
+    private int MAX_DEPTH = 6;
+
+    public int turnCounter = 1;
 
     public Agent(String group, CellColor color, String firstMove) {
         groupName = group;
@@ -86,7 +87,7 @@ public class Agent {
         String opponentMove = "";
         if (currentTurn != playerColor) {
             opponentMove = readOpponentMove(moveFile);
-            System.out.println(opponentMove);
+            System.out.println("Opponent Move: " + opponentMove);
             applyMove(currentBoard, interpretMoveString(opponentMove), currentTurn);
             System.out.println(currentBoard.boardToString());
             updateTurn();
@@ -105,6 +106,8 @@ public class Agent {
 
     public Cell chooseNextMove(String opponentMove) {
         Cell ourMove = new Cell();
+
+        /*
         if(opponentMove == null || opponentMove.isEmpty()){
             ourMove.setRow(5);
             ourMove.setCol(4);
@@ -112,6 +115,7 @@ public class Agent {
 
             return ourMove;
         }
+        */
 
         // ourMove = randomMove();
 
@@ -122,10 +126,10 @@ public class Agent {
     }
 
     public String moveToString(Cell move) {
-        if (move.getCol() == passIndex) {
+        if (move.getCol() == PASS_INDEX) {
             return groupName + " " + "P 1\n";
         }
-        char colString   = columnLetters.charAt(move.getCol());
+        char colString   = COLUMN_LETTERS.charAt(move.getCol());
         String rowString = String.valueOf(8 - move.getRow());
         return groupName + " " + colString + " " + rowString + "\n";
     }
@@ -133,7 +137,7 @@ public class Agent {
     public Cell interpretMoveString(String move) {
 
         String[] valueStrings = move.split(" ");
-        int col = columnLetters.indexOf(valueStrings[1]);
+        int col = COLUMN_LETTERS.indexOf(valueStrings[1]);
         int row = 8 - Integer.parseInt(valueStrings[2]);
 
         Cell moveCell = new Cell();
@@ -180,7 +184,7 @@ public class Agent {
 
     public Board applyMove(Board board, Cell cell, CellColor color) {
 
-        if (cell.getCol() == passIndex) {
+        if (cell.getCol() == PASS_INDEX) {
             // Pass
             board.currentColor = Board.getOppositeColor(color);
             return board;
@@ -194,12 +198,6 @@ public class Agent {
 
         return board;
     }
-
-    private List<Cell> generateMoves(Board currBoard, CellColor color) {
-        return currBoard.findValidMoves(color);
-    }
-
-
 
     /**
      * Given a board state, evaluate the board.
@@ -232,7 +230,7 @@ public class Agent {
     private Cell randomMove(){
         Random rand = new Random();
         Cell move = null;
-        List <Cell> moves = generateMoves(currentBoard, playerColor);
+        List <Cell> moves = currentBoard.findValidMoves();
         for (Cell testMove : moves) {
             System.out.println("Testmove: " + moveToString(testMove));
         }
@@ -253,6 +251,7 @@ public class Agent {
 
     private void updateTurn() {
         currentTurn = Board.getOppositeColor(currentTurn);
+        turnCounter += 1;
     }
 
 }

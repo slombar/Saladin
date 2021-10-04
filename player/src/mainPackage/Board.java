@@ -186,7 +186,7 @@ public class Board {
      *
      * @return a list of valid moves in the form of cells
      */
-    public List<Cell> findValidMoves(CellColor currColor) {
+    public List<Cell> findValidMoves() {
         List<Cell> validMoves = new ArrayList<>();
 
         //determine legal moves by using adjacent cells
@@ -200,9 +200,6 @@ public class Board {
                     if (isValidMove(currentCell)) {
                         validMoves.add(currentCell);
                     }
-                }
-                else {
-                    System.out.println();
                 }
             }
         }
@@ -268,5 +265,18 @@ public class Board {
             }
         }
         return copyBoard;
+    }
+
+    public static void printMove(Cell move) {
+        System.out.println(boardMoveToString(move));
+    }
+
+    private static String boardMoveToString(Cell move) {
+        if (move.getCol() == 10) {
+            return "P 1\n";
+        }
+        char colString   = "ABCDEFGH".charAt(move.getCol());
+        String rowString = String.valueOf(8 - move.getRow());
+        return colString + " " + rowString + "\n";
     }
 }

@@ -36,11 +36,21 @@ public class MinimaxAgent {
             return copyCurrentMove(currentBoardState, currentMove);
         }
 
-        childrenMoves = currentBoardState.findValidMoves(currentTurn);
+        childrenMoves = currentBoardState.findValidMoves();
 
-        // If end state, end recursion
-        if (isEndState(currentBoardState, currentTurn, childrenMoves)) {
-            return copyCurrentMove(currentBoardState, currentMove);
+        if (childrenMoves.isEmpty()) {
+            // Create a new board state with us having passed, then check if enemy can move
+            Cell passMove = new Cell();
+            passMove.setCol(agent.PASS_INDEX);
+            passMove.setRow(1);
+            Board passedBoardState = agent.applyMove(currentBoardState.deepCopy(), passMove, currentTurn);
+            List<Cell> enemyMoves = passedBoardState.findValidMoves();
+            if (enemyMoves.isEmpty()) {
+                return copyCurrentMove(currentBoardState, currentMove);
+            }
+            // Only pass is available
+            System.out.println("Can only PASS");
+            childrenMoves.add(passMove);
         }
 
         MiniMove currentChildMiniMove;
@@ -56,16 +66,25 @@ public class MinimaxAgent {
             if (isOurTurn) {
                 if (alpha < currentChildMiniMove.getValue()) {
                     alpha = currentChildMiniMove.getValue();
+                    currentChildMiniMove.setMove(currentChild);
                     childrenMiniMoves.add(currentChildMiniMove);
                 }
             }
             else {
                 if (beta > currentChildMiniMove.getValue()) {
                     beta = currentChildMiniMove.getValue();
+                    currentChildMiniMove.setMove(currentChild);
                     childrenMiniMoves.add(currentChildMiniMove);
                 }
             }
         }
+
+        //
+        System.out.println("Possible Moves: ");
+        for (MiniMove moveToPrint : childrenMiniMoves) {
+            Board.printMove(moveToPrint.getMove());
+        }
+        //
 
         if (isOurTurn) {
             MiniMove bestMove = new MiniMove();
@@ -95,14 +114,6 @@ public class MinimaxAgent {
         move.setMove(currentMove);
         move.setValue(evaluateBoardState(currentBoardState));
         return move;
-    }
-
-    private boolean isEndState(Board currentBoardState, CellColor currentTurn, List<Cell> availableMoves) {
-        if (availableMoves.isEmpty()) {
-            List<Cell> enemyMoves = currentBoardState.findValidMoves(Board.getOppositeColor(currentTurn));
-            return enemyMoves.isEmpty();
-        }
-        return false;
     }
 
     private int evaluateBoardState(Board currentBoardState) {
