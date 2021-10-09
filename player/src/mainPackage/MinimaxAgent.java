@@ -1,6 +1,9 @@
 package mainPackage;
 
+import java.sql.Array;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class MinimaxAgent {
@@ -13,6 +16,8 @@ public class MinimaxAgent {
     double NEGATIVE_INFINITY = -10000000;
     static double DISKS_ONLY_EVAL_WEIGHT = 1 / 100.0;
     static double NUM_MOVES_EVAL_WEIGHT = 1.0;
+    static double CORNER_CELLS_EVAL_WEIGHT = 10.0;
+    static double CORNER_ADJACENT_EVAL_WEIGHT = -3.0;
 
     long timeLimitMillis;
     long adjustedTimeLimit;
@@ -125,6 +130,9 @@ public class MinimaxAgent {
         double sum = 0;
         sum += (evaluateBoardStateDisksOnly(currentBoardState) * DISKS_ONLY_EVAL_WEIGHT);
         sum += (evaluateBoardNumMoves(currentBoardState) * NUM_MOVES_EVAL_WEIGHT);
+
+        sum += (evaluateBoardNumCorners(currentBoardState) * CORNER_CELLS_EVAL_WEIGHT);
+        sum += (evaluateBoardNumNextToCorner(currentBoardState) * CORNER_ADJACENT_EVAL_WEIGHT);
         return sum;
     }
 
@@ -150,5 +158,78 @@ public class MinimaxAgent {
 
     private static int evaluateBoardNumMoves(Board currentBoardState) {
         return currentBoardState.findValidMoves().size();
+    }
+
+    /**
+     * Evaluation function for board corners, if corner >0 if adjacent to corner <0
+     * @param currentBoardState
+     * @return a heuristic value for the board given that there are corner or corner adjacent cells
+     *
+     * corner cells
+     * (0,0) (7,7) (0,7) (7,0)
+     *
+     * corner adjacent cells
+     * (0,1) (1,0) (1,1) (7,6) (6,7) (6,6) (1,7) (0,6) (1,6) (7,1) (6,0) (6,1)
+     */
+    private static int evaluateBoardNumCorners(Board currentBoardState) {
+        int sum = 0;;
+        int[][] cornerCells = {{0, 0}, {7, 7}, {0, 7}, {7, 0}};
+        for(int[] cornerCell : cornerCells) {
+            Cell currentCell = currentBoardState.board[cornerCell[0]][cornerCell[1]];
+            if (currentBoardState.isPlayerCell(currentCell)) {
+                sum++;
+            }
+            else if (currentBoardState.isEnemyCell(currentCell)) {
+                sum--;
+            }
+        }
+        return sum;
+    }
+
+    /** Evaluates the board state if we are next to a corner
+     * @param currentBoardState, the current board state
+     * Corner adjacent cells
+     * {{0, 1}, {1, 0}, {1, 1},
+     * {7, 6}, {6, 7}, {6, 6},
+     * {1, 7}, {0, 6}, {1, 6},
+     * {7, 1}, {6, 0}, {6, 1}}
+
+     * @return
+     */
+    private static int evaluateBoardNumNextToCorner(Board currentBoardState) {
+        int sum =0;
+        ArrayList<int[]> cornerAdjacentCells = new ArrayList<>();
+
+        if (!currentBoardState.isPlayerCell(currentBoardState.board[0][0])) {
+            cornerAdjacentCells.add(new int[]{0, 1});
+            cornerAdjacentCells.add(new int[]{1, 0});
+            cornerAdjacentCells.add(new int[]{1, 1});
+        }
+        if (!currentBoardState.isPlayerCell(currentBoardState.board[7][7])) {
+            cornerAdjacentCells.add(new int[]{7, 6});
+            cornerAdjacentCells.add(new int[]{6, 7});
+            cornerAdjacentCells.add(new int[]{6, 6});
+        }
+        if (!currentBoardState.isPlayerCell(currentBoardState.board[0][7])) {
+            cornerAdjacentCells.add(new int[]{1, 7});
+            cornerAdjacentCells.add(new int[]{0, 6});
+            cornerAdjacentCells.add(new int[]{1, 6});
+        }
+        if (!currentBoardState.isPlayerCell(currentBoardState.board[7][0])) {
+            cornerAdjacentCells.add(new int[]{7, 1});
+            cornerAdjacentCells.add(new int[]{6, 0});
+            cornerAdjacentCells.add(new int[]{6, 1});
+        }
+
+        for (int[] cornerAdjacentCell : cornerAdjacentCells) {
+            Cell currentCell = currentBoardState.board[cornerAdjacentCell[0]][cornerAdjacentCell[1]];
+            if (currentBoardState.isPlayerCell(currentCell)) {
+                sum++;
+            } else if (currentBoardState.isEnemyCell(currentCell)) {
+                sum--;
+            }
+        }
+
+        return sum;
     }
 }
