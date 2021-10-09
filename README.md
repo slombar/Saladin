@@ -37,3 +37,7 @@ This is because it is more important to have more "open" future moves than to ha
 More available moves means that we can have a larger potential for a higher valued capture down the line. For example, keeping the corners open to capture is a very good strategy as enemies cannot recapture anything if the corners are isolated.
 The sum of those moves in our evaluation function also indicates when we have reached a tiebreaker state.
     
+####Updates for Tournament Submission
+
+* We updated the evaluation heuristic to consider corner spaces more valuable than other spaces (and worse if the opponent captures them).
+* We also updated the evaluation heuristic to consider spaces adjacent to a corner as negative value if the corner is not taken (and better if the opponent captures them).
